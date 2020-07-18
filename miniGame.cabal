@@ -1,0 +1,89 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 1ccbd989e0e744572a9fec5e8cafa492bf9af2b186cc2913796e6aff7d547241
+
+name:           miniGame
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/miniGame#readme>
+homepage:       https://github.com/githubuser/miniGame#readme
+bug-reports:    https://github.com/githubuser/miniGame/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2020 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/miniGame
+
+library
+  exposed-modules:
+      Action
+      Collisions
+      Constants
+      ECS.Base
+      ECS.Components
+      ECS.EntityComponents
+      ECS.GlobalComponents
+      ECS.KeyboardController
+      ECS.Manager
+      ECS.PhysicsComponents
+      ECS.SpriteComponent
+      EventHandler
+      Game
+      Init
+      PhysicsEngine
+      TextureManager
+      TileMap
+      Utils
+  other-modules:
+      Paths_miniGame
+  hs-source-dirs:
+      src
+  build-depends:
+      apecs
+    , array
+    , base >=4.7 && <5
+    , linear
+    , mtl
+    , sdl2
+    , sdl2-image
+    , text
+    , unordered-containers
+  default-language: Haskell2010
+
+executable miniGame-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_miniGame
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -optl-mconsole -optl-mwindows
+  build-depends:
+      apecs
+    , base >=4.7 && <5
+    , miniGame
+    , sdl2
+  default-language: Haskell2010
+
+test-suite miniGame-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_miniGame
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , miniGame
+  default-language: Haskell2010
