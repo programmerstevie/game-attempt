@@ -10,6 +10,7 @@ import ECS.Base
 import qualified SDL
 import Foreign.C.Types (CInt)
 
+
 init :: FilePath -> CInt -> CInt -> System' Sprite
 init path width height = do
   tex <- TextureManager.loadTexture path

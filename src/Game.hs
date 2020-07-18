@@ -12,6 +12,7 @@ import qualified ECS.KeyboardController
 import qualified EventHandler
 import qualified PhysicsEngine
 import qualified Constants
+import qualified TextureManager
 import qualified Init
 
 
@@ -20,6 +21,7 @@ import Control.Monad (unless)
 import qualified Data.HashMap.Strict as HM
 import qualified SDL
 import Linear
+import Data.Foldable
 import Foreign.C.Types (CInt, CFloat)
 import Data.Text (Text)
 
@@ -45,12 +47,13 @@ init title pos size fullscr = do
 
     global $= (Running True, Time 0)
     set global =<< TileMap.initMap
+
+    TextureManager.loadTexture "assets/DEFAULT.png"
     Init.initPlayer
 
 
 clean :: System' ()
 clean = do
-  cmapM_ $ \Sprite{ texture_S = tex } -> SDL.destroyTexture tex
   cmap $ \(Active _) -> Active False
   ECS.Manager.refresh
 

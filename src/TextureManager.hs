@@ -21,6 +21,7 @@ loadTexture path = do
   global $~ \(Textures texMap) -> Textures $ HM.insert path tex texMap
   pure tex
 
+
 loadTextures :: [FilePath] -> System' ()
 loadTextures = traverse_ loadTexture
 

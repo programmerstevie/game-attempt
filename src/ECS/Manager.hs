@@ -14,6 +14,7 @@ import Apecs
 --import qualified ECS.KeyboardController as Key
 import qualified SDL
 import qualified TextureManager
+import qualified Data.HashMap.Strict as HM
 import Foreign.C.Types (CFloat)
 import Control.Monad (unless, when)
 import Linear
@@ -65,11 +66,16 @@ actionUpdate =
 
 draw :: System' ()
 draw = do
+  Textures texMap <- get global
   cmapM_ $ \Sprite{ 
-             texture_S  = tex
+             filePath_S = path
            , srcRect_S  = src
            , destRect_S = dest
-           } -> TextureManager.draw tex src dest
+           } -> do
+    let 
+      defaultTex = texMap HM.! "assets/DEFAULT.png"
+      tex = HM.lookupDefault defaultTex path texMap
+    TextureManager.draw tex src dest
   cmapM_ $ \(aabb :: AABB) -> Utils.drawAABB aabb
 
 
