@@ -1,19 +1,21 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-
 module ECS.GlobalComponents where
+
 
 import qualified Constants
 
+
 import Apecs.Core (Component, Storage)
 import Apecs.Stores (Global)
-import qualified Data.Array as Array
+import Data.HashMap.Strict as HM
+import Data.Ix
 import Foreign.Ptr (nullPtr)
 import Foreign.C.Types (CInt, CFloat)
+import Linear
+import qualified Data.Array as Array
 import qualified SDL
 import qualified SDL.Internal.Types as SDL_T
-import Data.Ix
-import Linear
 
 
 
@@ -82,9 +84,7 @@ instance Component Gravity where
 type MapTiles = Array.Array (V2 CInt) CInt
 
 data TMap = TMap {
-  dirtTex_M  :: SDL.Texture
-, grassTex_M :: SDL.Texture
-, srcRect_M  :: Maybe (SDL.Rectangle CInt)
+  srcRect_M  :: Maybe (SDL.Rectangle CInt)
 , destRect_M :: Maybe (SDL.Rectangle CInt)
 , map_M      :: Maybe MapTiles -- 20 25
 } | TMapNULL
@@ -112,12 +112,34 @@ instance Component ControlInput where
   type Storage ControlInput = Global ControlInput
 
 
+
 newtype PrevControlInput = PrevControlInput ControlInput
   deriving (Semigroup, Monoid)
 
 instance Component PrevControlInput where
   type Storage PrevControlInput = Global PrevControlInput
 
+
+
+newtype Textures = Textures (HM.HashMap String SDL.Texture)
+
+instance Semigroup Textures where
+  (<>) = mappend
+instance Monoid Textures where
+  mempty = Textures HM.empty
+instance Component Textures where
+  type Storage Textures = Global Textures
+
+
+
+data DefaultTexture = DefaultTexture SDL.Texture | DefaultTextureError
+
+instance Semigroup DefaultTexture where
+  (<>) = mappend
+instance Monoid DefaultTexture where
+  mempty = DefaultTextureError
+instance Component DefaultTexture where
+  type Storage DefaultTexture = Global DefaultTexture
 
 
 instance Ix CInt where

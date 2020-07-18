@@ -22,6 +22,8 @@ makeWorld "World" [ ''Running
                   , ''TMap
                   , ''ControlInput
                   , ''PrevControlInput
+                  , ''Textures
+                  , ''DefaultTexture
                   
                   , ''KeyboardControl
                   , ''Sprite

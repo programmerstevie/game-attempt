@@ -38,7 +38,7 @@ instance Component Dinosaur where
 
 
 
-data Sprite = Sprite { texture_S  :: SDL.Texture
+data Sprite = Sprite { filePath_S :: FilePath
                      , srcRect_S  :: Maybe (SDL.Rectangle CInt)
                      , destRect_S :: Maybe (SDL.Rectangle CInt) }
 

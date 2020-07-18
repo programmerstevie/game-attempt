@@ -65,7 +65,8 @@ actionUpdate =
 
 draw :: System' ()
 draw = do
-  cmapM_ $ \Sprite{ texture_S  = tex
+  cmapM_ $ \Sprite{ 
+             texture_S  = tex
            , srcRect_S  = src
            , destRect_S = dest
            } -> TextureManager.draw tex src dest

@@ -28,7 +28,7 @@ groundCollision ety = do
     newBottomLeft =    ctr - hs + V2 Cons.onePix (-Cons.onePix)
     newBottomRight = 
       V2 ( Utils.getX newBottomLeft  + Utils.getX hs * 2 - 2 * Cons.onePix )
-          ( Utils.getY newBottomLeft )
+         ( Utils.getY newBottomLeft )
 
     endY = Utils.worldYToMapY $ Utils.getY newBottomLeft
     begY = max endY $ Utils.worldYToMapY (Utils.getY oldBottomLeft) - 1
@@ -61,6 +61,8 @@ groundCollision ety = do
               groundY = Utils.mapYToWorldY tileIndexY + 1
   
   return . asum . map loopY $ tileIndexYs
+
+
 
 
 isObstacle :: MapTiles -> V2 CInt -> Bool

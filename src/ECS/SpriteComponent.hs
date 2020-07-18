@@ -13,11 +13,12 @@ import Foreign.C.Types (CInt)
 init :: FilePath -> CInt -> CInt -> System' Sprite
 init path width height = do
   tex <- TextureManager.loadTexture path
+
   SDL.TextureInfo{ SDL.textureWidth  = w
                  , SDL.textureHeight = h } <- SDL.queryTexture tex
   let srcRect  = Utils.makeRect 0 (SDL.V2 w h)
       destRect = Utils.makeRect 0 (SDL.V2 width height)
-  pure Sprite{ texture_S  = tex
+  pure Sprite{ filePath_S = path
              , srcRect_S  = Just srcRect
              , destRect_S = Just destRect
              }
@@ -29,6 +30,6 @@ setTex spr path = do
   SDL.TextureInfo{ SDL.textureWidth  = w
                  , SDL.textureHeight = h } <- SDL.queryTexture tex
   let srcRect  = Utils.makeRect 0 (SDL.V2 w h)
-  pure spr{ texture_S = tex
-          , srcRect_S = Just srcRect
+  pure spr{ filePath_S = path
+          , srcRect_S  = Just srcRect
           }

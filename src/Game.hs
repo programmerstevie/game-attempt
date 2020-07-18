@@ -17,6 +17,7 @@ import qualified Init
 
 import Apecs
 import Control.Monad (unless)
+import qualified Data.HashMap.Strict as HM
 import qualified SDL
 import Linear
 import Foreign.C.Types (CInt, CFloat)
@@ -55,10 +56,10 @@ clean = do
 
   (  Window window
    , Renderer renderer
-   , tmap :: TMap
+   , Textures texMap
    ) <- get global
-  unless (Utils.nullTMap tmap) $
-    mapM_ (SDL.destroyTexture . ($ tmap)) [dirtTex_M, grassTex_M]
+  traverse_ SDL.destroyTexture $ HM.elems texMap
+
   SDL.destroyWindow window
   SDL.destroyRenderer renderer
   SDL.quit
