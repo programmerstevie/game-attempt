@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1ccbd989e0e744572a9fec5e8cafa492bf9af2b186cc2913796e6aff7d547241
+-- hash: 5be4ec9dad10d4716e09e3f6f69385940f4061ccd8aacabe95465288393fae68
 
 name:           miniGame
 version:        0.1.0.0
@@ -59,6 +59,7 @@ library
     , sdl2-image
     , text
     , unordered-containers
+    , vector
   default-language: Haskell2010
 
 executable miniGame-exe

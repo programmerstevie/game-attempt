@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE MultiWayIf            #-}
 module Utils where
 
 -- import qualified
@@ -144,6 +145,8 @@ worldXToMapX = floor
 
 mapYToWorldY :: CInt -> CFloat
 mapYToWorldY = fromIntegral . (19 -)
+mapXToWorldX :: CInt -> CFloat
+mapXToWorldX = fromIntegral
 
 
 mapToWorldCoords :: V2 CInt -> V2 CFloat
@@ -166,5 +169,20 @@ setPos ety (Position pos) = do
     aabb :: AABB <- get ety
     ety $= aabb{ center = pos + offset aabb }
 
+
 lerp :: V2 CFloat -> V2 CFloat -> CFloat -> V2 CFloat
-lerp a b t =  a + ((b - a) ^* t)
+lerp a b t
+  | t <= 1 && t >= 0 = a + ((b - a) ^* t)
+  | otherwise = error "lerp out of range"
+
+roundVec :: V2 CFloat -> V2 CFloat
+roundVec = fmap pixRound 
+
+pixRound :: CFloat -> CFloat
+pixRound x
+  | ending /= 0.5 = fromIntegral (round bigX) * Constants.onePix
+  | even wholeX   = fromIntegral       wholeX * Constants.onePix
+  | otherwise     = fromIntegral (wholeX + 1) * Constants.onePix
+    where bigX = x / Constants.onePix
+          wholeX = floor bigX
+          ending = bigX - fromIntegral wholeX

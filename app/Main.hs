@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+-- stack build --fast --file-watch --ghc-options "-j4 +RTS -A128m -n2m -RTS"
 
 import qualified Game
 import ECS.Base (System', Running(..), initWorld)
@@ -15,7 +16,7 @@ import qualified SDL.Raw
 
 
 fps, frameDelay :: Word32
-fps = 60
+fps = 30
 frameDelay = 1000 `div` fps
 
 
@@ -39,8 +40,8 @@ gameLoop = do
   Running running <- get global
   when running $ do
     frameStart <- SDL.ticks
-    Game.update
     Game.handleEvents
+    Game.update
     Game.draw
     dT <- subtract frameStart <$> SDL.ticks
     when (frameDelay > dT) $

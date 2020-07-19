@@ -60,6 +60,14 @@ instance Component KeyboardControl where
   type Storage KeyboardControl = Map KeyboardControl
 
 
+
+newtype OnOneWayPlatform = OnOneWayPlatform Bool
+
+instance Component OnOneWayPlatform where
+  type Storage OnOneWayPlatform = Map OnOneWayPlatform
+
+
+
 -- Aliases
 
 type EntityComponents = ( Player
@@ -81,6 +89,7 @@ type PhysicsComponents
       , PushesLeftWall
       , AtCeiling
       , OnGround
+      , OnOneWayPlatform
       )
     , ( OldPosition
       , OldVelocity
@@ -107,6 +116,7 @@ initPhysics =
       , PushesLeftWall False
       , AtCeiling False
       , OnGround False
+      , OnOneWayPlatform False
       )
     , ( Old $ Position 0
       , Old $ Velocity 0

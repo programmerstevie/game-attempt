@@ -48,7 +48,9 @@ init title pos size fullscr = do
     global $= (Running True, Time 0)
     set global =<< TileMap.initMap
 
-    TextureManager.loadTexture "assets/DEFAULT.png"
+    TextureManager.loadTextures [ "assets/DEFAULT.png"
+                                , "assets/Background2048x1536.png"
+                                ]
     Init.initPlayer
 
 
@@ -74,6 +76,7 @@ clean = do
 
 handleEvents :: System' ()
 handleEvents = do
+  ECS.KeyboardController.updatePrevControls
   payload <- map SDL.eventPayload <$> SDL.pollEvents 
   mapM_ EventHandler.handleEvent payload
   ECS.KeyboardController.keyboardHandle
@@ -86,8 +89,8 @@ update = do
   let dT = t' - t
   global $= (Time t', DT dT)
   PhysicsEngine.update
+  ECS.Manager.actionUpdate
   ECS.Manager.update
-  ECS.KeyboardController.updatePrevControls
 
 
 draw :: System' ()

@@ -142,6 +142,18 @@ instance Component DefaultTexture where
   type Storage DefaultTexture = Global DefaultTexture
 
 
+
+newtype PixelTrail = PixelTrail [SDL.Point V2 CInt]
+
+instance Semigroup PixelTrail where
+  (<>) = mappend
+instance Monoid PixelTrail where
+  mempty = PixelTrail []
+instance Component PixelTrail where
+  type Storage PixelTrail = Global PixelTrail
+
+
+
 instance Ix CInt where
   range (m,n) = [m..n]
   index b@(m,_n) i | inRange b i = fromIntegral $ i - m

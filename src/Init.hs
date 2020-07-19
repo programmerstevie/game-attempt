@@ -29,7 +29,7 @@ initPlayer = do
             , JumpHeight Constants.playerJumpHeight
             , TerminalVelocity (-40)
             , OnGround True
-            , Position $ V2 0 3
+            , Position $ V2 0 7
             )
   player $~~ \(Position pos) ->
     AABB  { center   = 0

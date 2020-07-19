@@ -82,6 +82,13 @@ handleStand ety = movement
           Action.jumpAction ety
       | leftKey controls /= rightKey controls =
           ety $= Walk
+      | downKey controls = ety $>>
+          \(OnOneWayPlatform onOneWayPlatform, Position pos) ->
+          when onOneWayPlatform $ do
+            --Utils.consoleLog "whoop!"
+            Utils.setPos ety $ Position $
+              Utils.modY (subtract Constants.oneWayPlatformThreshold) pos
+            ety $= OnGround False
       | otherwise = pure ()
 
 handleWalk :: Entity -> ControlInput -> System' ()
@@ -92,11 +99,18 @@ handleWalk ety = movement
           Action.jumpAction ety
       | rightKey controls == leftKey controls =
           ety $= Stand
+      | downKey controls = ety $>>
+          \(OnOneWayPlatform onOneWayPlatform, Position pos) ->
+          when onOneWayPlatform $ do
+            --Utils.consoleLog "whoosh!"
+            Utils.setPos ety $ Position $
+              Utils.modY (subtract Constants.oneWayPlatformThreshold) pos
+            ety $= Jump
       | otherwise = do
           DT dT <- get global
-          ety $~~ \(Velocity vel, WalkAccel wlkacc) ->
+          ety $>> \(Velocity vel, WalkAccel wlkacc) -> do
             let sign = if rightKey controls then 1 else -1
-            in Velocity $ Utils.modX (+ sign * wlkacc * dT) vel
+            ety $= Velocity (vel + sign *^ V2 (wlkacc * dT) 0)
 
 
 handleJump :: Entity -> ControlInput -> System' ()
@@ -105,14 +119,13 @@ handleJump ety = movement
     movement controls = do
       DT dT <- get global
       when (leftKey controls /= rightKey controls) $ do
-        ety $~~ \(Velocity vel, JumpAccel jmpacc) ->
+        ety $>> \(Velocity vel, JumpAccel jmpacc) -> do
           let sign = if rightKey controls then 1 else -1
-          in Velocity $ Utils.modX (+ sign * jmpacc * dT) vel
+          ety $= Velocity (Utils.modX (+ sign * jmpacc * dT) vel)
       ety $>> \(Velocity vel) ->
-        when (not (upKey controls) && Utils.getY vel > 0) $
+        unless (upKey controls || Utils.getY vel <= 0) $
           Action.correctYVel ety Constants.minJumpSpeed (-800)
       when (downKey controls) $ do
         Gravity g <- get global
-        ety $~ \(Velocity vel) ->
-          Velocity $ vel + g ^* (dT * 2)
+        ety $~ \(Velocity vel) -> Velocity (vel + g ^* (dT * 2))
 

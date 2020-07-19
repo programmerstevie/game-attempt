@@ -16,8 +16,9 @@ import qualified SDL
 import qualified TextureManager
 import qualified Data.HashMap.Strict as HM
 import Foreign.C.Types (CFloat)
-import Control.Monad (unless, when)
+import Control.Monad (unless, when, forM_)
 import Linear
+import qualified Data.Vector.Storable as Vector
 
 
 update :: System' ()
@@ -28,8 +29,7 @@ update = do
       Nothing -> spr
       Just (SDL.Rectangle _ (V2 _ h)) ->
         spr{ destRect_S = Utils.setRectPos dest $
-              Utils.worldToSdlCoords (pos + Utils.scaleToWorld (V2 0 h)) }
-  actionUpdate
+          Utils.worldToSdlCoords (pos + Utils.scaleToWorld (V2 0 h)) }
 
 
 actionUpdate :: System' ()
@@ -58,8 +58,6 @@ actionUpdate =
         -- do animation based on up or down
         Action.correctXVel ety wlkspd Constants.airFriction
         ety $~ \(Velocity vel) -> Velocity $ Utils.modY (max termvel) vel
-        when (pushesRightWall || pushesLeftWall) $
-          ety $~ \(Velocity vel) -> Velocity $ Utils.setX vel 0
         when onGround $
           ety $= Stand
       
@@ -85,3 +83,18 @@ refresh = cmapM_ $
   unless active $ do
     Utils.consoleLog "Deleted entity!"
     destroy e (Proxy :: Proxy EntityComponents)
+
+
+
+
+drawTrail :: System' ()
+drawTrail = do
+  (PixelTrail trail, Renderer renderer) <- get global
+  SDL.rendererDrawColor renderer SDL.$= V4 255 0 0 255
+  SDL.drawPoints renderer (Vector.fromList $ take 100 trail)
+
+updateTrail :: System' ()
+updateTrail =
+  cmapM_ $ \(Player, Position pos, Velocity vel) -> do
+    let V2 px py = Utils.worldToSdlCoords pos
+    global $~ \(PixelTrail trail) -> PixelTrail (SDL.P (V2 px py) : trail)

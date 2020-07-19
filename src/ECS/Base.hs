@@ -24,6 +24,8 @@ makeWorld "World" [ ''Running
                   , ''PrevControlInput
                   , ''Textures
                   , ''DefaultTexture
+
+                  , ''PixelTrail
                   
                   , ''KeyboardControl
                   , ''Sprite
@@ -46,6 +48,7 @@ makeWorld "World" [ ''Running
                   , ''PushesLeftWall
                   , ''OnGround
                   , ''AtCeiling
+                  , ''OnOneWayPlatform
 
                   , ''OldPosition
                   , ''OldVelocity
