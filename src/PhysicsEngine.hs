@@ -28,8 +28,8 @@ update = do
       Utils.setPos ety (Position $ pos + vel ^* dT)
     ety $>> \(OnGround onGround, Velocity vel) ->
       unless onGround $ ety $= Velocity (vel + g ^* dT)
-    updateAABB ety
     updateTileCollisions ety
+    updateAABB ety
 
 
 updateAABB :: Entity -> System' AABB
@@ -79,7 +79,7 @@ updateTileCollisions ety = do
         Utils.setPos ety $ 
           Position $ Utils.setX pos $ leftX + Utils.getX (hs - ofst)
         ety $= PushesLeftWall True
-        ety $= Velocity (Utils.modX (max 0) vel)
+      ety $= Velocity (Utils.modX (max 0) vel)
     else ety $= PushesLeftWall False
 
   -- when to move entity to the left (collides with right wall)
@@ -98,7 +98,7 @@ updateTileCollisions ety = do
         Utils.setPos ety $ 
           Position $ Utils.setX pos $ rghtX - Utils.getX (hs + ofst)
         ety $= PushesRightWall True
-        ety $= Velocity (Utils.modX (min 0) vel)
+      ety $= Velocity (Utils.modX (min 0) vel)
     else ety $= PushesRightWall False
   
   -- when to move entity upwards (collides with ground)

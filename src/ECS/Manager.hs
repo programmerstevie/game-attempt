@@ -21,9 +21,8 @@ import Linear
 import qualified Data.Vector.Storable as Vector
 
 
-update :: System' ()
-update = do
-  refresh
+updateSprites :: System' ()
+updateSprites =
   cmap $ \( Position pos, spr@Sprite { destRect_S = dest } ) ->
     case dest of
       Nothing -> spr

@@ -88,9 +88,10 @@ update = do
   t' <- Utils.toSeconds <$> SDL.ticks
   let dT = t' - t
   global $= (Time t', DT dT)
-  PhysicsEngine.update
+  ECS.Manager.refresh
   ECS.Manager.actionUpdate
-  ECS.Manager.update
+  PhysicsEngine.update
+  ECS.Manager.updateSprites
 
 
 draw :: System' ()
