@@ -14,6 +14,7 @@ import Foreign.C.Types (CInt)
 import Control.Monad
 
 
+
 lvl1 :: MapTiles
 lvl1 = Array.listArray (0, V2 19 24) (
      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -31,7 +32,7 @@ lvl1 = Array.listArray (0, V2 19 24) (
   ++ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   ++ [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   ++ [2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0]
-  ++ [2, 2, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 3, 3, 3, 1, 1, 2, 2, 2, 1, 0, 0, 0, 0]
+  ++ [2, 2, 2, 2, 3, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 1, 1, 2, 2, 2, 1, 0, 0, 0, 0]
   ++ [2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0]
   ++ [2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0]
   ++ [2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0]
@@ -48,15 +49,18 @@ initMap = do
     , "assets/Background2048x1536.png"
     ]
   return $ TMap{
-    srcRect_M  = Just $ Utils.makeRect 0 (V2 32 32)
+    map_M      = lvl1
+  , srcRect_M  = Just $ Utils.makeRect 0 (V2 32 32)
   , destRect_M = Just $ Utils.makeRect 0 (V2 32 32)
-  , map_M      = Just lvl1
+  , playerStartPos_M = V2 0 7
+  , exitPos_M = 0
+  , ents_M = []
   }
 
 loadMap :: MapTiles -> System' ()
-loadMap arr = get global >>= \case
-  TMapNULL -> pure ()
-  tileMap  -> global $= tileMap{ map_M = Just arr }
+loadMap arr = do
+  tileMap :: TMap <- get global
+  global $= tileMap{ map_M = arr }
   
 drawMap :: System' ()
 drawMap = do
@@ -65,24 +69,18 @@ drawMap = do
       bkgr =
         HM.lookupDefault defaultTex "assets/Background2048x1536.png" texMap
   TextureManager.draw bkgr Nothing Nothing
-  tmap :: TMap <- get global
-  case tmap of
-    TMapNULL  -> pure ()
-    TMap{ destRect_M = destR
-        , map_M      = maybe_arr
-        } -> 
-      case maybe_arr of
-        Nothing  -> pure ()
-        Just arr ->
-          forM_ (Array.assocs arr) $ \(V2 row column, tile) -> do
-          let destR' = Utils.setRectPos destR $ 
-                        fromIntegral <$> V2 (column * 32) (row * 32)
-          let
-            path = case tile of
-                      1 -> "assets/grass.png"
-                      2 -> "assets/dirt.png"
-                      3 -> "assets/oneWay.png"
-                      _ -> ""
-          when (tile > 0) $
-            TextureManager.draw 
-              (HM.lookupDefault defaultTex path texMap) Nothing destR'
+  TMap{ destRect_M = destR
+      , map_M      = mapTiles
+      } <- get global
+  forM_ (Array.assocs mapTiles) $ \(V2 row column, tile) -> do
+    let destR' = Utils.setRectPos destR $ 
+                  fromIntegral <$> V2 (column * 32) (row * 32)
+    let
+      path = case tile of
+                1 -> "assets/grass.png"
+                2 -> "assets/dirt.png"
+                3 -> "assets/oneWay.png"
+                _ -> ""
+    when (tile > 0) $
+      TextureManager.draw 
+        (HM.lookupDefault defaultTex path texMap) Nothing destR'

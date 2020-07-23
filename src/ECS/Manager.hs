@@ -11,10 +11,10 @@ import qualified Constants
 import qualified Action
 
 import Apecs
---import qualified ECS.KeyboardController as Key
 import qualified SDL
 import qualified TextureManager
 import qualified Data.HashMap.Strict as HM
+import Data.Bits
 import Foreign.C.Types (CFloat)
 import Control.Monad (unless, when, forM_)
 import Linear
@@ -37,10 +37,9 @@ actionUpdate =
     (  JumpSpeed jmpspd
      , WalkSpeed wlkspd
      , TerminalVelocity termvel
-     , OnGround onGround
-     , PushesRightWall pushesRightWall
-     , PushesLeftWall pushesLeftWall   ) <- get ety
+     , CollisionFlags collisionFlags) <- get ety
     DT dT <- get global
+    let onGround = testBit collisionFlags 10
     unless onGround $
       ety $= Jump
     case action of
@@ -51,12 +50,13 @@ actionUpdate =
       Walk -> do
         -- Utils.consoleLog "Walking"
         -- do animation
-        Action.correctXVel ety wlkspd Constants.correctWalkFriction
+        ety $~ \(Velocity (V2 vx vy)) -> 
+          Velocity $ V2 (signum vx * min (abs vx) wlkspd) vy
       Jump -> do
         -- Utils.consoleLog "Jump"
         -- do animation based on up or down
-        Action.correctXVel ety wlkspd Constants.airFriction
-        ety $~ \(Velocity vel) -> Velocity $ Utils.modY (max termvel) vel
+        ety $~ \(Velocity (V2 vx vy)) ->
+          Velocity $ V2 (signum vx * min (abs vx) wlkspd) (max termvel vy)
         when onGround $
           ety $= Stand
       
@@ -83,8 +83,7 @@ refresh = cmapM_ $
     Utils.consoleLog "Deleted entity!"
     destroy e (Proxy :: Proxy EntityComponents)
 
-
-
+{-
 
 drawTrail :: System' ()
 drawTrail = do
@@ -92,8 +91,10 @@ drawTrail = do
   SDL.rendererDrawColor renderer SDL.$= V4 255 0 0 255
   SDL.drawPoints renderer (Vector.fromList $ take 100 trail)
 
+
+
 updateTrail :: System' ()
 updateTrail =
   cmapM_ $ \(Player, Position pos, Velocity vel) -> do
     let V2 px py = Utils.worldToSdlCoords pos
-    global $~ \(PixelTrail trail) -> PixelTrail (SDL.P (V2 px py) : trail)
+    global $~ \(PixelTrail trail) -> PixelTrail (SDL.P (V2 px py) : trail) -}

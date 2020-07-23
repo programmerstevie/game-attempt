@@ -11,10 +11,11 @@ import ECS.Base
 import qualified Utils
 import Utils (($~~), ($>>))
 import qualified Action
-import qualified Constants
+import qualified Constants as Cons
 
 import Apecs
 import Control.Monad
+import Data.Bits
 import qualified SDL
 import Linear
 
@@ -62,7 +63,7 @@ state key = do
 keyboardHandle :: System' ()
 keyboardHandle = do
   controls :: ControlInput <- get global
-  cmapM_ $ \( KeyboardControl
+  cmapM_ $ \( Player
             , _ :: PhysicsComponents
             , action :: Action
             , ety :: Entity) ->
@@ -87,8 +88,8 @@ handleStand ety = movement
           when onOneWayPlatform $ do
             --Utils.consoleLog "whoop!"
             Utils.setPos ety $ Position $
-              Utils.modY (subtract Constants.oneWayPlatformThreshold) pos
-            ety $= OnGround False
+              Utils.modY (subtract Cons.oneWayPlatformThreshold) pos
+            ety $~ \(CollisionFlags coll) -> CollisionFlags $ clearBit coll 10
       | otherwise = pure ()
 
 handleWalk :: Entity -> ControlInput -> System' ()
@@ -104,7 +105,7 @@ handleWalk ety = movement
           when onOneWayPlatform $ do
             --Utils.consoleLog "whoosh!"
             Utils.setPos ety $ Position $
-              Utils.modY (subtract Constants.oneWayPlatformThreshold) pos
+              Utils.modY (subtract Cons.oneWayPlatformThreshold) pos
             ety $= Jump
       | otherwise = do
           DT dT <- get global
@@ -119,13 +120,13 @@ handleJump ety = movement
     movement controls = do
       DT dT <- get global
       when (leftKey controls /= rightKey controls) $ do
-        ety $>> \(Velocity vel, JumpAccel jmpacc) -> do
+        ety $>> \(Velocity vel, JumpStrafe jmpstrf) -> do
           let sign = if rightKey controls then 1 else -1
-          ety $= Velocity (Utils.modX (+ sign * jmpacc * dT) vel)
+          ety $= Velocity (vel + V2 (sign * jmpstrf * dT) 0)
       ety $>> \(Velocity vel) ->
         unless (upKey controls || Utils.getY vel <= 0) $
-          Action.correctYVel ety Constants.minJumpSpeed (-800)
+          Action.correctYVel ety Cons.minJumpSpeed (-800)
       when (downKey controls) $ do
-        Gravity g <- get global
-        ety $~ \(Velocity vel) -> Velocity (vel + g ^* (dT * 2))
+        ety $~ \(Velocity vel) -> 
+          Velocity $ vel + V2 0 (Cons.gravity * (dT * 2))
 

@@ -2,12 +2,22 @@
 module ECS.EntityComponents where
 
 import ECS.PhysicsComponents
+import ECS.PlayerComponents
 
 import Apecs.Core (Component, Storage)
-import Apecs.Stores (Map, Unique)
+import Apecs.Stores (Map)
 import qualified SDL
 import Linear
 import Foreign.C.Types (CInt, CFloat)
+
+
+
+
+newtype Active = Active { unActive :: Bool }
+
+instance Component Active where
+  type Storage Active = Map Active
+
 
 
 data Action = Stand | Walk | Jump
@@ -21,13 +31,6 @@ data Facing = FaceLeft | FaceRight
 
 instance Component Facing where
   type Storage Facing = Map Facing
-
-
-
-data Player = Player
-
-instance Component Player where
-  type Storage Player = Unique Player
 
 
 
@@ -47,32 +50,10 @@ instance Component Sprite where
 
 
 
-newtype Active = Active Bool
-
-instance Component Active where
-  type Storage Active = Map Active
-
-
-
-data KeyboardControl = KeyboardControl
-
-instance Component KeyboardControl where
-  type Storage KeyboardControl = Map KeyboardControl
-
-
-
-newtype OnOneWayPlatform = OnOneWayPlatform Bool
-
-instance Component OnOneWayPlatform where
-  type Storage OnOneWayPlatform = Map OnOneWayPlatform
-
-
-
 -- Aliases
 
 type EntityComponents = ( Player
                         , Dinosaur
-                        , KeyboardControl
                         , ( PhysicsComponents
                           , Action
                           , Facing
@@ -82,25 +63,18 @@ type EntityComponents = ( Player
                         )
 
 type PhysicsComponents
-  = ( AABB
-    , ( Position
+  = ( 
+      ( Position
       , Velocity
-      , PushesRightWall
-      , PushesLeftWall
-      , AtCeiling
-      , OnGround
+      , CollisionFlags
+      , OldPosition
+      , OldVelocity
+      , OldCollisionFlags
       , OnOneWayPlatform
       )
-    , ( OldPosition
-      , OldVelocity
-      , PushedRightWall
-      , PushedLeftWall
-      , WasOnGround
-      , WasAtCeiling
-      )
-    , ( JumpHeight
+    , ( AABB
       , JumpSpeed
-      , JumpAccel
+      , JumpStrafe
       , WalkSpeed
       , WalkAccel
       , TerminalVelocity
@@ -109,25 +83,18 @@ type PhysicsComponents
 
 initPhysics :: PhysicsComponents
 initPhysics = 
-    ( AABB 0 0 0
-    , ( Position 0
+    ( 
+      ( Position 0
       , Velocity 0
-      , PushesRightWall False
-      , PushesLeftWall False
-      , AtCeiling False
-      , OnGround False
+      , CollisionFlags 0
+      , Old $ Position 0
+      , Old $ Velocity 0
+      , Old $ CollisionFlags 0
       , OnOneWayPlatform False
       )
-    , ( Old $ Position 0
-      , Old $ Velocity 0
-      , Old $ PushesRightWall False
-      , Old $ PushesLeftWall False
-      , Old $ OnGround False
-      , Old $ AtCeiling False
-      )
-    , ( JumpHeight 0
+    , ( AABB 0 0 0 0
       , JumpSpeed 0
-      , JumpAccel 0
+      , JumpStrafe 0
       , WalkSpeed 0
       , WalkAccel 0
       , TerminalVelocity 0

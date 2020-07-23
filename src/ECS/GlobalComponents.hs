@@ -19,7 +19,7 @@ import qualified SDL.Internal.Types as SDL_T
 
 
 
-newtype Running = Running Bool deriving Show
+newtype Running = Running { unRunning :: Bool } deriving Show
 
 instance Semigroup Running where
   (<>) = mappend
@@ -30,7 +30,7 @@ instance Component Running where
 
 
 
-newtype Time = Time CFloat deriving Show
+newtype Time = Time { unTime :: CFloat } deriving Show
 
 instance Semigroup Time where
   (<>) = mappend
@@ -40,7 +40,8 @@ instance Component Time where
   type Storage Time = Global Time
 
 
-newtype DT = DT CFloat deriving Show
+
+newtype DT = DT { unDT :: CFloat } deriving Show
 
 instance Semigroup DT where
   (<>) = mappend
@@ -50,7 +51,8 @@ instance Component DT where
   type Storage DT = Global DT
 
 
-newtype Renderer = Renderer SDL.Renderer
+
+newtype Renderer = Renderer { unRenderer :: SDL.Renderer }
 
 instance Semigroup Renderer where
   (<>) = mappend
@@ -61,7 +63,7 @@ instance Component Renderer where
 
 
 
-newtype Window = Window SDL.Window
+newtype Window = Window { unWindow :: SDL.Window }
 
 instance Semigroup Window where
   (<>) = mappend
@@ -71,30 +73,44 @@ instance Component Window where
   type Storage Window = Global Window
 
 
-newtype Gravity = Gravity (V2 CFloat)
-
-instance Semigroup Gravity where
-  (<>) = mappend
-instance Monoid Gravity where
-  mempty = Gravity $ V2 0 (-Constants.gravity)
-instance Component Gravity where
-  type Storage Gravity = Global Gravity
-
 
 type MapTiles = Array.Array (V2 CInt) CInt
 
 data TMap = TMap {
-  srcRect_M  :: Maybe (SDL.Rectangle CInt)
-, destRect_M :: Maybe (SDL.Rectangle CInt)
-, map_M      :: Maybe MapTiles -- 20 25
-} | TMapNULL
+  map_M            :: MapTiles
+, srcRect_M        :: Maybe (SDL.Rectangle CInt)
+, destRect_M       :: Maybe (SDL.Rectangle CInt)
+, playerStartPos_M :: V2 CFloat
+, exitPos_M        :: V2 CFloat
+, ents_M           :: [(String, V2 CFloat)]
+}
 
 instance Semigroup TMap where
   (<>) = mappend
 instance Monoid TMap where
-  mempty = TMapNULL
+  mempty = TMap { map_M            = Array.array (1, 0) []
+                , destRect_M       = Nothing
+                , playerStartPos_M = 0 
+                , exitPos_M        = 0
+                , ents_M           = []
+                }
 instance Component TMap where
   type Storage TMap = Global TMap
+
+
+
+data Camera = Camera {
+  gameCoords_C :: V2 CFloat
+, gameSize_C   :: V2 CFloat
+}
+
+instance Semigroup Camera where
+  (<>) = mappend
+instance Monoid Camera where
+  mempty = Camera 0 0
+instance Component Camera where
+  type Storage Camera = Global Camera
+
 
 
 data ControlInput = ControlInput {
@@ -140,17 +156,6 @@ instance Monoid DefaultTexture where
   mempty = DefaultTextureError
 instance Component DefaultTexture where
   type Storage DefaultTexture = Global DefaultTexture
-
-
-
-newtype PixelTrail = PixelTrail [SDL.Point V2 CInt]
-
-instance Semigroup PixelTrail where
-  (<>) = mappend
-instance Monoid PixelTrail where
-  mempty = PixelTrail []
-instance Component PixelTrail where
-  type Storage PixelTrail = Global PixelTrail
 
 
 

@@ -16,7 +16,7 @@ import qualified SDL.Raw
 
 
 fps, frameDelay :: Word32
-fps = 30
+fps = 60
 frameDelay = 1000 `div` fps
 
 

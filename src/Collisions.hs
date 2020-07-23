@@ -1,7 +1,9 @@
+{- HLINT Ignore "Reduce duplication." -}
 module Collisions where
 
 import ECS.Base
 import qualified Utils
+import Utils ((>*<))
 import qualified Constants
 
 
@@ -12,6 +14,7 @@ import Data.Maybe (fromJust)
 import Data.Foldable
 import Foreign.C.Types (CInt, CFloat)
 import Linear
+import Debug.Trace
 
 
 {-
@@ -23,11 +26,14 @@ rightWallCollision :: MapTiles
                    -> Position
                    -> Maybe CFloat 
 rightWallCollision map_m 
-                   AABB{ halfSize = hs, offset = ofst }
+                   aabb
                    (Old (Position oldPos))
                    (Position pos) 
     = asum . map loopX $ tileIndexXs
   where
+    hs   = halfSize aabb >*< scale aabb
+    ofst = offset   aabb >*< scale aabb
+
     ctr = pos + ofst
     oldCtr = oldPos + ofst
 
@@ -82,11 +88,14 @@ leftWallCollision :: MapTiles
                   -> Position
                   -> Maybe CFloat
 leftWallCollision map_m
-                  AABB{ halfSize = hs, offset = ofst }
+                  aabb
                   (Old (Position oldPos))
                   (Position pos)
     = asum . map loopX $ tileIndexXs
   where
+    hs   = halfSize aabb >*< scale aabb
+    ofst = offset   aabb >*< scale aabb
+
     ctr = pos + ofst
     oldCtr = oldPos + ofst
 
@@ -144,11 +153,14 @@ ceilingCollision :: MapTiles
                  -> Position
                  -> Maybe CFloat 
 ceilingCollision map_m 
-                 AABB{ halfSize = hs, offset = ofst }
+                 aabb
                  (Old (Position oldPos))
                  (Position pos) 
     = asum . map loopY $ tileIndexYs
   where
+    hs   = halfSize aabb >*< scale aabb
+    ofst = offset   aabb >*< scale aabb
+
     ctr    = pos + ofst
     oldCtr = oldPos + ofst
 
@@ -160,7 +172,7 @@ ceilingCollision map_m
       newTopRight + V2 (2 * Constants.onePix - Utils.getX hs * 2) 0
 
     endY = Utils.worldYToMapY $ Utils.getY newTopRight
-    begY = max endY $ Utils.worldYToMapY (Utils.getY oldTopRight) + 1
+    begY = max endY $ Utils.worldYToMapY (Utils.getY oldTopRight) - 1
     dist = max 1 $ abs (endY - begY)
 
     tileIndexYs = takeWhile (>= endY) [begY, begY - 1..]
@@ -202,11 +214,14 @@ groundCollision :: MapTiles
                  -> Position
                  -> Maybe (CFloat, Bool) 
 groundCollision map_m 
-                AABB{ halfSize = hs, offset = ofst }
+                aabb
                 (Old (Position oldPos))
                 (Position pos)
   = asum . map loopY $ tileIndexYs
   where
+    hs   = halfSize aabb >*< scale aabb
+    ofst = offset   aabb >*< scale aabb
+
     oldCtr = oldPos + ofst
     ctr    = pos + ofst
 

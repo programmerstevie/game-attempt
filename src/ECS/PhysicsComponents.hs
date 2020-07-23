@@ -6,110 +6,112 @@ module ECS.PhysicsComponents where
 import Apecs.Core (Component, Storage)
 import Apecs.Stores (Map, Unique)
 import Linear
-import Foreign.C.Types (CInt, CFloat)
+import Foreign.C.Types (CInt, CShort, CFloat)
 
 
 
 data AABB = AABB { center   :: V2 CFloat
                  , halfSize :: V2 CFloat
-                 , offset   :: V2 CFloat }
+                 , offset   :: V2 CFloat
+                 , scale    :: V2 CFloat }
 
 instance Component AABB where
   type Storage AABB = Map AABB
 
 
 
-newtype Position = Position (V2 CFloat)
+newtype Position = Position { unPosition :: V2 CFloat }
 
 instance Component Position where
   type Storage Position = Map Position
 
 
 
-newtype Velocity = Velocity (V2 CFloat)
+newtype Velocity = Velocity { unVelocity :: V2 CFloat }
 
 instance Component Velocity where
   type Storage Velocity = Map Velocity
 
 
 
-newtype PushesRightWall = PushesRightWall Bool
+newtype CollisionFlags = CollisionFlags { unCollisionFlags :: CShort }
 
-instance Component PushesRightWall where
-  type Storage PushesRightWall = Map PushesRightWall
+instance Component CollisionFlags where
+  type Storage CollisionFlags = Map CollisionFlags
 
+{- 
+0  PushesLeft
+1  PushesRight
+2  PushesBottom
+3  PushesTop
 
-newtype PushesLeftWall = PushesLeftWall Bool
+4  PushesLeftObject
+5  PushesRightObject
+6  PushesBottomObject
+7  PushesTopObject
 
-instance Component PushesLeftWall where
-  type Storage PushesLeftWall = Map PushesLeftWall
-
-
-
-newtype OnGround = OnGround Bool
-
-instance Component OnGround where
-  type Storage OnGround = Map OnGround
-
-
-
-newtype AtCeiling = AtCeiling Bool
-
-instance Component AtCeiling where
-  type Storage AtCeiling = Map AtCeiling
+8  PushesLeftTile
+9  PushesRightTile
+10 PushesBottomTile
+11 PushesTopTile
+-}
 
 
-  
-newtype Old a = Old a
+
+newtype OnOneWayPlatform = OnOneWayPlatform { unOnOneWayPlatform :: Bool }
+
+instance Component OnOneWayPlatform where
+  type Storage OnOneWayPlatform = Map OnOneWayPlatform
+
+
+
+newtype Old a = Old { unOld :: a }
 
 instance (Component a) => Component (Old a) where
   type Storage (Old a) = Map (Old a)
 
-type OldPosition     = Old Position
-type OldVelocity     = Old Velocity
-type PushedRightWall = Old PushesRightWall
-type PushedLeftWall  = Old PushesLeftWall
-type WasOnGround     = Old OnGround
-type WasAtCeiling    = Old AtCeiling
+type OldPosition       = Old Position
+type OldVelocity       = Old Velocity
+type OldCollisionFlags = Old CollisionFlags
 
 
 
-newtype JumpHeight = JumpHeight CFloat
+newtype JumpHeight = JumpHeight { unJumpHeight :: CFloat }
 
 instance Component JumpHeight where
   type Storage JumpHeight = Map JumpHeight
 
 
 
-newtype JumpSpeed = JumpSpeed CFloat
+newtype JumpSpeed = JumpSpeed { unJumpSpeed :: CFloat }
 
 instance Component JumpSpeed where
   type Storage JumpSpeed = Map JumpSpeed
 
 
 
-newtype WalkSpeed = WalkSpeed CFloat
+newtype WalkSpeed = WalkSpeed { unWalkSpeed :: CFloat }
 
 instance Component WalkSpeed where
   type Storage WalkSpeed = Map WalkSpeed
 
 
 
-newtype WalkAccel = WalkAccel CFloat
+newtype WalkAccel = WalkAccel { unWalkAccel :: CFloat }
 
 instance Component WalkAccel where
   type Storage WalkAccel = Map WalkAccel
 
 
 
-newtype JumpAccel = JumpAccel CFloat
+newtype JumpStrafe = JumpStrafe { unJumpStrafe :: CFloat }
 
-instance Component JumpAccel where
-  type Storage JumpAccel = Map JumpAccel
+instance Component JumpStrafe where
+  type Storage JumpStrafe = Map JumpStrafe
 
 
 
-newtype TerminalVelocity = TerminalVelocity CFloat
+newtype TerminalVelocity = TerminalVelocity { unTerminalVelocity :: CFloat }
 
 instance Component TerminalVelocity where
   type Storage TerminalVelocity = Map TerminalVelocity

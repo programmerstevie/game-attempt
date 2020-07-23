@@ -9,17 +9,18 @@ minJumpSpeed :: CFloat
 minJumpSpeed = 4
 
 
-playerJumpHeight, playerFallTime :: CFloat
+playerJumpHeight, playerFallTime, playerJumpSpeed :: CFloat
 playerJumpHeight = 5
 playerFallTime = 0.2
-
+playerJumpSpeed = sqrt $ 2 * playerJumpHeight * abs gravity
 
 gravity :: CFloat
-gravity = 2 * playerJumpHeight / (playerFallTime ** 2)
+gravity = -2 * playerJumpHeight / (playerFallTime ** 2)
 
 
 friction :: CFloat
 friction = -160
+
 
 
 correctWalkFriction :: CFloat

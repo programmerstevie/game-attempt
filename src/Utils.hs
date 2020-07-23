@@ -7,7 +7,7 @@ module Utils where
 -- import qualified
 
 import ECS.Base
-import qualified Constants
+import qualified Constants as Cons
 
 import Apecs
 import Apecs.Components
@@ -106,18 +106,6 @@ modifyM_ (Entity ety) f = do
 infixr 2 $>>
 
 
-
-setJumpVel :: Entity -> System' ()
-setJumpVel e = do
-  Gravity g <- get global
-  e $~~ \(JumpHeight jumpHeight) ->
-    JumpSpeed $ sqrt (2 * norm g * jumpHeight)
-
-nullTMap :: TMap -> Bool
-nullTMap TMapNULL = True
-nullTMap _ = False
-
-
 swapV :: V2 a -> V2 a
 swapV (V2 vx vy) = V2 vy vx
 
@@ -152,11 +140,17 @@ mapXToWorldX = fromIntegral
 mapToWorldCoords :: V2 CInt -> V2 CFloat
 mapToWorldCoords = fmap fromIntegral . modY (19 -) . swapV
 
+elemTimes :: Num n => V2 n -> V2 n -> V2 n
+elemTimes (V2 ax ay) (V2 bx by) = V2 (ax * bx) (ay * by)
+(>*<) = elemTimes
+
 drawAABB :: AABB -> System' ()
 drawAABB AABB{ center   = ctr
-             , halfSize = hs } = do
-  let rect = makeRect (worldToSdlCoords $ ctr + modX negate hs) $
-                       fmap floor $ hs ^* (2 * Constants.coordsScale)
+             , halfSize = hs 
+             , scale    = scl } = do
+  let rect = makeRect (worldToSdlCoords $ ctr 
+                      + modX negate (scl >*< hs)) $
+                        fmap floor $ (scl >*< hs) ^* (2 * Cons.coordsScale)
   Renderer renderer <- get global
   SDL.rendererDrawColor renderer SDL.$= V4 200 0 0 255
   SDL.drawRect renderer (Just rect)
@@ -180,9 +174,9 @@ roundVec = fmap pixRound
 
 pixRound :: CFloat -> CFloat
 pixRound x
-  | ending /= 0.5 = fromIntegral (round bigX) * Constants.onePix
-  | even wholeX   = fromIntegral       wholeX * Constants.onePix
-  | otherwise     = fromIntegral (wholeX + 1) * Constants.onePix
-    where bigX = x / Constants.onePix
+  | ending /= 0.5 = fromIntegral (round bigX) * Cons.onePix
+  | even wholeX   = fromIntegral       wholeX * Cons.onePix
+  | otherwise     = fromIntegral (wholeX + 1) * Cons.onePix
+    where bigX = x / Cons.onePix
           wholeX = floor bigX
           ending = bigX - fromIntegral wholeX

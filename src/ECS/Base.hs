@@ -16,50 +16,42 @@ import qualified SDL
 import Apecs
 
 makeWorld "World" [ ''Running
-                  , ''Time
                   , ''Renderer
                   , ''Window
+                  , ''Camera
+                  , ''Time
+                  , ''DT
                   , ''TMap
                   , ''ControlInput
                   , ''PrevControlInput
-                  , ''Textures
                   , ''DefaultTexture
+                  , ''Textures
 
-                  , ''PixelTrail
-                  
-                  , ''KeyboardControl
                   , ''Sprite
                   , ''Active
                   , ''Action
                   , ''Facing
 
                   , ''Player
-                  , ''Dinosaur
+                  , ''FastFalling
 
-                  , ''Gravity
-                  , ''DT
+                  , ''Dinosaur
 
 
                   , ''AABB
 
                   , ''Position
                   , ''Velocity
-                  , ''PushesRightWall
-                  , ''PushesLeftWall
-                  , ''OnGround
-                  , ''AtCeiling
-                  , ''OnOneWayPlatform
+                  , ''CollisionFlags
 
                   , ''OldPosition
                   , ''OldVelocity
-                  , ''PushedRightWall
-                  , ''PushedLeftWall
-                  , ''WasOnGround
-                  , ''WasAtCeiling
+                  , ''OldCollisionFlags
 
-                  , ''JumpHeight
+                  , ''OnOneWayPlatform
+
                   , ''JumpSpeed
-                  , ''JumpAccel
+                  , ''JumpStrafe
                   , ''WalkSpeed
                   , ''WalkAccel
                   , ''TerminalVelocity
