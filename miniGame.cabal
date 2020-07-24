@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 48b282000c3328c75e0743cc1e87756e449cbe6fab668fdb664b8a1e882acabc
+-- hash: 859c4ae7c7089da9c4c27f637a5c8837d3c6e657353e45314964c65aca226f96
 
 name:           miniGame
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Action
+      Camera
       Collisions
       Constants
       ECS.Base
@@ -43,6 +44,7 @@ library
       Game
       Init
       PhysicsEngine
+      Renderer
       TextureManager
       TileMap
       Utils

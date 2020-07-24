@@ -6,7 +6,7 @@ module PhysicsEngine where
 
 import ECS.Base
 import qualified Utils
-import Utils (($~~), ($>>), (>*<))
+import Utils (($~~), ($>>), (^^*))
 import qualified Constants as Cons
 import qualified Collisions
 
@@ -37,7 +37,7 @@ update = do
 updateAABB :: Entity -> System' AABB
 updateAABB ety = do
   ety $~~ \(Position pos, aabb@AABB{ offset = ofst, scale = scl }) ->
-    aabb{ center = pos + (ofst >*< scl) }
+    aabb{ center = pos + (ofst ^^* scl) }
   get ety
 
 
@@ -56,8 +56,8 @@ updateOld = cmap $
 updateTileCollisions :: Entity -> System' ()
 updateTileCollisions ety = do
   aabb_ :: AABB <- get ety
-  let hs = halfSize aabb_ >*< scale aabb_
-      ofst = offset aabb_ >*< scale aabb_
+  let hs = halfSize aabb_ ^^* scale aabb_
+      ofst = offset aabb_ ^^* scale aabb_
   mapTiles <- map_M <$> get global
 
   -- when to move entity to the right (collides with left wall)

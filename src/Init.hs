@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Init where
 
 
@@ -10,6 +11,7 @@ import Utils (($~~))
 
 import Apecs
 import Linear
+import Foreign.C.Types (CInt)
 
 
 initPlayer :: System' ()
@@ -35,3 +37,5 @@ initPlayer = do
           , offset   = V2 (1/2) (7/16)
           , scale = V2 1 1
           }
+  player $~ \(sprite :: Sprite) -> sprite{ flip_S = Cons.flipX }
+

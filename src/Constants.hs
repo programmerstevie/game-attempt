@@ -21,6 +21,10 @@ gravity = -2 * playerJumpHeight / (playerFallTime ** 2)
 friction :: CFloat
 friction = -160
 
+noFlip, flipX, flipY :: V2 Bool
+noFlip = V2 False False
+flipX = V2 True False
+flipY = V2 False True
 
 
 correctWalkFriction :: CFloat

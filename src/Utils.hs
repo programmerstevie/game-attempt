@@ -15,6 +15,7 @@ import Apecs.Core
 import Control.Monad
 import Control.Monad.Reader
 import qualified SDL
+import qualified Data.Array as Array
 import Linear
 import Foreign.C.Types (CFloat, CInt)
 import Control.Monad.IO.Class
@@ -30,7 +31,12 @@ consoleShowLog :: (MonadIO m, Show a) => a -> m ()
 consoleShowLog = consoleLog . show
 
 
-makeRect :: SDL.V2 CInt -> V2 CInt -> SDL.Rectangle CInt
+getRectSize :: Maybe (SDL.Rectangle CInt) -> System' (V2 CInt)
+getRectSize Nothing = SDL.get . SDL.windowSize . unWindow =<< get global
+getRectSize (Just (SDL.Rectangle _ size)) = return size
+
+
+makeRect :: V2 CInt -> V2 CInt -> SDL.Rectangle CInt
 makeRect = SDL.Rectangle . SDL.P
 
 setRectPos :: Maybe (SDL.Rectangle CInt)
@@ -109,51 +115,43 @@ infixr 2 $>>
 swapV :: V2 a -> V2 a
 swapV (V2 vx vy) = V2 vy vx
 
-worldToSdlCoords :: V2 CFloat -> V2 CInt
-worldToSdlCoords  = fmap (floor . (*32)) . modY (20 -)
-
-sdlToWorldCoords :: V2 CInt -> V2 CFloat
-sdlToWorldCoords = modY (20 -) . fmap ((*32) . fromIntegral)
-
 
 scaleToWorld :: V2 CInt -> V2 CFloat
-scaleToWorld = fmap $ (/ 32) . fromIntegral
+scaleToWorld = fmap $ (/ Cons.coordsScale) . fromIntegral
 
 scaleToSdl :: V2 CFloat -> V2 CInt
-scaleToSdl = fmap $ floor . (* 32)
+scaleToSdl = fmap $ floor . (* Cons.coordsScale)
 
 
-worldToMapCoords :: V2 CFloat -> V2 CInt
-worldToMapCoords = swapV . modY (19 -) . fmap floor
-
-worldYToMapY :: CFloat -> CInt
-worldYToMapY = (19 -) . floor
-worldXToMapX :: CFloat -> CInt
-worldXToMapX = floor
-
-mapYToWorldY :: CInt -> CFloat
-mapYToWorldY = fromIntegral . (19 -)
-mapXToWorldX :: CInt -> CFloat
-mapXToWorldX = fromIntegral
+worldToMapCoords :: MapTiles -> V2 CFloat -> V2 CInt
+worldToMapCoords map_m = swapV . modY (yHeight -) . fmap floor
+  where yHeight = getX . snd $ Array.bounds map_m
 
 
-mapToWorldCoords :: V2 CInt -> V2 CFloat
-mapToWorldCoords = fmap fromIntegral . modY (19 -) . swapV
+mapToWorldCoords :: MapTiles -> V2 CInt -> V2 CFloat
+mapToWorldCoords map_m = fmap fromIntegral . modY (yHeight -) . swapV
+  where yHeight = getX . snd $ Array.bounds map_m
 
-elemTimes :: Num n => V2 n -> V2 n -> V2 n
+
+worldToMapY, worldToMapX ::  MapTiles -> CFloat -> CInt
+worldToMapY map_m y = getX $ worldToMapCoords map_m (V2 0 y)
+worldToMapX map_m x = getY $ worldToMapCoords map_m (V2 x 0)
+
+
+mapToWorldY, mapToWorldX :: MapTiles -> CInt -> CFloat
+mapToWorldY map_m y = getY $ mapToWorldCoords map_m (V2 y 0)
+mapToWorldX map_m x = getX $ mapToWorldCoords map_m (V2 0 x)
+
+
+elemTimes, (^^*) :: Num n => V2 n -> V2 n -> V2 n
 elemTimes (V2 ax ay) (V2 bx by) = V2 (ax * bx) (ay * by)
-(>*<) = elemTimes
+(^^*) = elemTimes
 
-drawAABB :: AABB -> System' ()
-drawAABB AABB{ center   = ctr
-             , halfSize = hs 
-             , scale    = scl } = do
-  let rect = makeRect (worldToSdlCoords $ ctr 
-                      + modX negate (scl >*< hs)) $
-                        fmap floor $ (scl >*< hs) ^* (2 * Cons.coordsScale)
-  Renderer renderer <- get global
-  SDL.rendererDrawColor renderer SDL.$= V4 200 0 0 255
-  SDL.drawRect renderer (Just rect)
+
+elemDiv, (^^/) :: V2 CFloat -> V2 CFloat -> V2 CFloat
+elemDiv (V2 ax ay) (V2 bx by) = V2 (ax / bx) (ay / by)
+(^^/) = elemDiv
+
 
 setPos :: Entity -> Position -> System' ()
 setPos ety (Position pos) = do

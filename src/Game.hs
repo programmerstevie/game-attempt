@@ -14,6 +14,8 @@ import qualified PhysicsEngine
 import qualified Constants
 import qualified TextureManager
 import qualified Init
+import qualified Camera
+import qualified Renderer
 
 
 import Apecs
@@ -44,6 +46,8 @@ init title pos size fullscr = do
     renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
     global $= Renderer renderer
     Utils.consoleLog "Renderer created!"
+
+    global $= Camera 0 (V2 31 20)
 
     global $= (Running True, Time 0)
     set global =<< TileMap.initMap
@@ -101,5 +105,6 @@ draw = do
   TileMap.drawMap
   ECS.Manager.draw
   
-  SDL.rendererDrawColor renderer SDL.$= V4 255 255 255 255
+  SDL.rendererDrawColor renderer SDL.$= V4 0 0 0 255
+  Renderer.setFullViewPort
   SDL.present renderer

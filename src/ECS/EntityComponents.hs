@@ -43,7 +43,9 @@ instance Component Dinosaur where
 
 data Sprite = Sprite { filePath_S :: FilePath
                      , srcRect_S  :: Maybe (SDL.Rectangle CInt)
-                     , destRect_S :: Maybe (SDL.Rectangle CInt) }
+                     , destRect_S :: Maybe (SDL.Rectangle CInt) 
+                     , flip_S     :: V2 Bool
+                     }
 
 instance Component Sprite where
   type Storage Sprite = Map Sprite

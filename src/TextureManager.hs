@@ -3,10 +3,12 @@ module TextureManager where
 -- import qualified
 
 import ECS.Base
+import qualified Camera
 
-import Foreign.C.Types (CInt)
+import Foreign.C.Types (CInt, CFloat)
 import Apecs
 import Data.Foldable
+import Linear
 import qualified Data.HashMap.Strict as HM
 import qualified SDL
 import qualified SDL.Image as IMG
@@ -29,7 +31,10 @@ loadTextures = traverse_ loadTexture
 draw :: SDL.Texture 
      -> Maybe (SDL.Rectangle CInt) 
      -> Maybe (SDL.Rectangle CInt) 
+     -> V2 Bool
      -> System' ()
-draw tex src dest = do
-  Renderer renderer <- get global
-  SDL.copy renderer tex src dest
+draw tex src dest flp = do
+  renderer <- unRenderer <$> get global
+  dest' <- Camera.scaleRecToCamera dest
+  SDL.copyEx renderer tex src dest' 0 Nothing flp
+

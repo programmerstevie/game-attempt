@@ -89,6 +89,7 @@ instance Semigroup TMap where
   (<>) = mappend
 instance Monoid TMap where
   mempty = TMap { map_M            = Array.array (1, 0) []
+                , srcRect_M        = Nothing
                 , destRect_M       = Nothing
                 , playerStartPos_M = 0 
                 , exitPos_M        = 0
@@ -101,7 +102,7 @@ instance Component TMap where
 
 data Camera = Camera {
   gameCoords_C :: V2 CFloat
-, gameSize_C   :: V2 CFloat
+, size_C       :: V2 CFloat
 }
 
 instance Semigroup Camera where

@@ -3,7 +3,7 @@ module Collisions where
 
 import ECS.Base
 import qualified Utils
-import Utils ((>*<))
+import Utils ((^^*))
 import qualified Constants
 
 
@@ -14,7 +14,6 @@ import Data.Maybe (fromJust)
 import Data.Foldable
 import Foreign.C.Types (CInt, CFloat)
 import Linear
-import Debug.Trace
 
 
 {-
@@ -24,15 +23,15 @@ rightWallCollision :: MapTiles
                    -> AABB
                    -> OldPosition
                    -> Position
-                   -> Maybe CFloat 
-rightWallCollision map_m 
+                   -> Maybe CFloat
+rightWallCollision map_m
                    aabb
                    (Old (Position oldPos))
-                   (Position pos) 
+                   (Position pos)
     = asum . map loopX $ tileIndexXs
   where
-    hs   = halfSize aabb >*< scale aabb
-    ofst = offset   aabb >*< scale aabb
+    hs   = halfSize aabb ^^* scale aabb
+    ofst = offset   aabb ^^* scale aabb
 
     ctr = pos + ofst
     oldCtr = oldPos + ofst
@@ -44,8 +43,8 @@ rightWallCollision map_m
     newTopRight = Utils.roundVec $
       newBottomRight + V2 0 (Utils.getY hs * 2)
 
-    endX = Utils.worldXToMapX $ Utils.getX newBottomRight
-    begX = min endX $ Utils.worldXToMapX (Utils.getX oldBottomRight) + 1
+    endX = Utils.worldToMapX map_m $ Utils.getX newBottomRight
+    begX = min endX $ Utils.worldToMapX map_m (Utils.getX oldBottomRight) + 1
     dist = max 1 $ abs (endX - begX)
 
     tileIndexXs = takeWhile (<= endX) [begX, begX + 1..]
@@ -67,8 +66,8 @@ rightWallCollision map_m
           | otherwise = loopY tilesToCheck
             where
               checkedTileY = min (Utils.getY checkedTile) (Utils.getY topRight)
-              tileIndexY = Utils.worldYToMapY checkedTileY
-              wallX = Utils.mapXToWorldX tileIndexX
+              tileIndexY = Utils.worldToMapY map_m checkedTileY
+              wallX = Utils.mapToWorldX map_m tileIndexX
               obstacle = isObstacle map_m $ V2 tileIndexY tileIndexX
 
               leftTileIndex = V2 tileIndexY (tileIndexX - 1)
@@ -93,8 +92,8 @@ leftWallCollision map_m
                   (Position pos)
     = asum . map loopX $ tileIndexXs
   where
-    hs   = halfSize aabb >*< scale aabb
-    ofst = offset   aabb >*< scale aabb
+    hs   = halfSize aabb ^^* scale aabb
+    ofst = offset   aabb ^^* scale aabb
 
     ctr = pos + ofst
     oldCtr = oldPos + ofst
@@ -106,8 +105,8 @@ leftWallCollision map_m
     newTopLeft = Utils.roundVec $
       newBottomLeft + V2 0 (Utils.getY hs * 2)
 
-    endX = Utils.worldXToMapX $ Utils.getX newBottomLeft
-    begX = max endX $ Utils.worldXToMapX (Utils.getX oldBottomLeft) - 1
+    endX = Utils.worldToMapX map_m $ Utils.getX newBottomLeft
+    begX = max endX $ Utils.worldToMapX map_m (Utils.getX oldBottomLeft) - 1
     dist = max 1 $ abs (endX - begX)
 
     tileIndexXs = takeWhile (>= endX) [begX, begX - 1..]
@@ -131,8 +130,8 @@ leftWallCollision map_m
               checkedTileY = min
                 (Utils.getY checkedTile)
                 (Utils.getY topLeft)
-              tileIndexY = Utils.worldYToMapY checkedTileY
-              wallX = Utils.mapXToWorldX tileIndexX + 1
+              tileIndexY = Utils.worldToMapY map_m checkedTileY
+              wallX = Utils.mapToWorldX map_m tileIndexX + 1
               obstacle = isObstacle map_m $ V2 tileIndexY tileIndexX
 
               rightTileIndex = V2 tileIndexY (tileIndexX + 1)
@@ -158,8 +157,8 @@ ceilingCollision map_m
                  (Position pos) 
     = asum . map loopY $ tileIndexYs
   where
-    hs   = halfSize aabb >*< scale aabb
-    ofst = offset   aabb >*< scale aabb
+    hs   = halfSize aabb ^^* scale aabb
+    ofst = offset   aabb ^^* scale aabb
 
     ctr    = pos + ofst
     oldCtr = oldPos + ofst
@@ -171,8 +170,8 @@ ceilingCollision map_m
     newTopLeft = Utils.roundVec $
       newTopRight + V2 (2 * Constants.onePix - Utils.getX hs * 2) 0
 
-    endY = Utils.worldYToMapY $ Utils.getY newTopRight
-    begY = max endY $ Utils.worldYToMapY (Utils.getY oldTopRight) - 1
+    endY = Utils.worldToMapY map_m $ Utils.getY newTopRight
+    begY = max endY $ Utils.worldToMapY map_m (Utils.getY oldTopRight) - 1
     dist = max 1 $ abs (endY - begY)
 
     tileIndexYs = takeWhile (>= endY) [begY, begY - 1..]
@@ -196,8 +195,8 @@ ceilingCollision map_m
               checkedTileX = min
                 (Utils.getX checkedTile)
                 (Utils.getX topRight)
-              tileIndexX = Utils.worldXToMapX checkedTileX
-              ceilingY = Utils.mapYToWorldY tileIndexY
+              tileIndexX = Utils.worldToMapX map_m checkedTileX
+              ceilingY = Utils.mapToWorldY map_m tileIndexY
               obstacle = isObstacle map_m $ V2 tileIndexY tileIndexX
 
               obstacleUnder = isObstacle map_m $ V2 (tileIndexY + 1) tileIndexX
@@ -219,8 +218,8 @@ groundCollision map_m
                 (Position pos)
   = asum . map loopY $ tileIndexYs
   where
-    hs   = halfSize aabb >*< scale aabb
-    ofst = offset   aabb >*< scale aabb
+    hs   = halfSize aabb ^^* scale aabb
+    ofst = offset   aabb ^^* scale aabb
 
     oldCtr = oldPos + ofst
     ctr    = pos + ofst
@@ -232,8 +231,8 @@ groundCollision map_m
     newBottomRight = Utils.roundVec $
       newBottomLeft + V2 (Utils.getX hs * 2 - 2 * Constants.onePix) 0
 
-    endY = Utils.worldYToMapY $ Utils.getY newBottomLeft
-    begY = min endY $ Utils.worldYToMapY (Utils.getY oldBottomLeft) + 1
+    endY = Utils.worldToMapY map_m $ Utils.getY newBottomLeft
+    begY = min endY $ Utils.worldToMapY map_m (Utils.getY oldBottomLeft) + 1
     dist = max 1 $ abs (endY - begY)
 
 
@@ -262,8 +261,8 @@ groundCollision map_m
               checkedTileX = min
                 (Utils.getX checkedTile)
                 (Utils.getX bottomRight)
-              tileIndexX = Utils.worldXToMapX checkedTileX
-              groundY = Utils.mapYToWorldY tileIndexY + 1
+              tileIndexX = Utils.worldToMapX map_m checkedTileX
+              groundY = Utils.mapToWorldY map_m tileIndexY + 1
               tileIndex = V2 tileIndexY tileIndexX
               obstacle = isObstacle map_m tileIndex
               obstacleOnTop = isObstacle map_m $ V2 (tileIndexY - 1) tileIndexX

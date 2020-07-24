@@ -6,8 +6,10 @@ module ECS.Manager where
 
 import ECS.Base
 import qualified Utils
-import Utils (($~~), ($>=), ($>>))
-import qualified Constants
+import Utils (($~~), ($>=), ($>>), (^^*), (^^/))
+import qualified Constants as Cons
+import qualified Camera
+import qualified Renderer
 import qualified Action
 
 import Apecs
@@ -22,13 +24,15 @@ import qualified Data.Vector.Storable as Vector
 
 
 updateSprites :: System' ()
-updateSprites =
-  cmap $ \( Position pos, spr@Sprite { destRect_S = dest } ) ->
+updateSprites = do
+  Renderer.setCamViewPort
+
+  cmapM $ \( Position pos, spr@Sprite { destRect_S = dest } ) ->
     case dest of
-      Nothing -> spr
-      Just (SDL.Rectangle _ (V2 _ h)) ->
-        spr{ destRect_S = Utils.setRectPos dest $
-          Utils.worldToSdlCoords (pos + Utils.scaleToWorld (V2 0 h)) }
+      Nothing -> pure spr
+      Just (SDL.Rectangle _ (V2 _ h)) -> do
+        destPos <- Camera.worldToSdlCoords $ pos + Utils.scaleToWorld (V2 0 h)
+        pure spr{ destRect_S = Utils.setRectPos dest destPos }
 
 
 actionUpdate :: System' ()
@@ -46,7 +50,7 @@ actionUpdate =
       Stand -> do
         -- Utils.consoleLog "Standing"
         -- do animation
-        Action.correctXVel ety 0 Constants.friction
+        Action.correctXVel ety 0 Cons.friction
       Walk -> do
         -- Utils.consoleLog "Walking"
         -- do animation
@@ -64,16 +68,32 @@ actionUpdate =
 draw :: System' ()
 draw = do
   Textures texMap <- get global
+  Renderer.setCamViewPort
   cmapM_ $ \Sprite{ 
              filePath_S = path
            , srcRect_S  = src
            , destRect_S = dest
+           , flip_S     = flp
            } -> do
     let 
       defaultTex = texMap HM.! "assets/DEFAULT.png"
       tex = HM.lookupDefault defaultTex path texMap
-    TextureManager.draw tex src dest
-  cmapM_ $ \(aabb :: AABB) -> Utils.drawAABB aabb
+    TextureManager.draw tex src dest flp
+  cmapM_ $ \(aabb :: AABB) -> drawAABB aabb
+
+
+drawAABB :: AABB -> System' ()
+drawAABB AABB{ center   = ctr
+             , halfSize = hs 
+             , scale    = scl } = do
+  Renderer.setCamViewPort
+  rectCoords <- Camera.worldToSdlCoords $ ctr + Utils.modX negate (scl ^^* hs)
+  rectSize   <- Camera.scaleToCamera $ 
+                  fmap floor $ (scl ^^* hs) ^* (2 * Cons.coordsScale)
+  let rect = Utils.makeRect rectCoords rectSize
+  Renderer renderer <- get global
+  SDL.rendererDrawColor renderer SDL.$= V4 200 0 0 255
+  SDL.drawRect renderer (Just rect)
 
 
 refresh :: System' ()
