@@ -4,9 +4,9 @@ module ECS.PhysicsComponents where
 
 
 import Apecs.Core (Component, Storage)
-import Apecs.Stores (Map, Unique)
+import Apecs.Stores (Map)
 import Linear
-import Foreign.C.Types (CInt, CShort, CFloat)
+import Foreign.C.Types (CShort, CFloat)
 
 
 

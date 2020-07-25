@@ -12,7 +12,6 @@ import Apecs
 import Linear
 import qualified Data.Array as Array
 import qualified Data.HashMap.Strict as HM
-import Foreign.C.Types (CInt)
 import Control.Monad
 
 
@@ -75,7 +74,7 @@ drawMap = do
   TMap{ destRect_M = destR
       , map_M      = mapTiles
       } <- get global
-  let (_, V2 mapH mapW) = Array.bounds mapTiles
+  --let (_, V2 mapH mapW) = Array.bounds mapTiles
   forM_ (Array.assocs mapTiles) $ \(coords, tile) -> do
     destR' <- Utils.setRectPos destR <$> Camera.mapToSdlCoords mapTiles coords
     let

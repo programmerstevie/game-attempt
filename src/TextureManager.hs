@@ -5,7 +5,7 @@ module TextureManager where
 import ECS.Base
 import qualified Camera
 
-import Foreign.C.Types (CInt, CFloat)
+import Foreign.C.Types (CInt)
 import Apecs
 import Data.Foldable
 import Linear

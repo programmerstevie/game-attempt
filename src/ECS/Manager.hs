@@ -1,12 +1,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MultiWayIf #-}
---{-# LANGUAGE LambdaCase #-}
 {- HLINT ignore "Redundant do" -}
 module ECS.Manager where
 
 import ECS.Base
 import qualified Utils
-import Utils (($~~), ($>=), ($>>), (^^*), (^^/))
+import Utils ((^^*))
 import qualified Constants as Cons
 import qualified Camera
 import qualified Renderer
@@ -17,10 +16,9 @@ import qualified SDL
 import qualified TextureManager
 import qualified Data.HashMap.Strict as HM
 import Data.Bits
-import Foreign.C.Types (CFloat)
-import Control.Monad (unless, when, forM_)
+import Foreign.C.Types ()
+import Control.Monad (unless, when)
 import Linear
-import qualified Data.Vector.Storable as Vector
 
 
 updateSprites :: System' ()
@@ -38,11 +36,9 @@ updateSprites = do
 actionUpdate :: System' ()
 actionUpdate =
   cmapM_ $ \(action :: Action, _ :: PhysicsComponents, ety :: Entity) -> do
-    (  JumpSpeed jmpspd
-     , WalkSpeed wlkspd
+    (  WalkSpeed wlkspd
      , TerminalVelocity termvel
      , CollisionFlags collisionFlags) <- get ety
-    DT dT <- get global
     let onGround = testBit collisionFlags 10
     unless onGround $
       ety $= Jump

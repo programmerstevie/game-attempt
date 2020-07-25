@@ -11,11 +11,8 @@ import qualified Constants as Cons
 import qualified Collisions
 
 import Apecs
-import qualified SDL
 import Linear
-import Foreign.C.Types (CInt)
 import Data.Maybe (isJust, fromJust)
-import Data.Foldable (asum)
 import Control.Monad
 import Data.Bits
 
@@ -34,11 +31,10 @@ update = do
     updateAABB ety
 
 
-updateAABB :: Entity -> System' AABB
+updateAABB :: Entity -> System' ()
 updateAABB ety = do
   ety $~~ \(Position pos, aabb@AABB{ offset = ofst, scale = scl }) ->
     aabb{ center = pos + (ofst ^^* scl) }
-  get ety
 
 
 updateOld :: System' ()
@@ -103,7 +99,7 @@ updateTileCollisions ety = do
   -- when to move entity upwards (collides with ground)
   ety $>> \( Velocity vel
            , pos'@(Position pos)
-           , oldpos'@(Old (Position oldpos))
+           , oldpos' :: OldPosition
            , aabb :: AABB
            , CollisionFlags coll
            ) -> do
@@ -123,7 +119,7 @@ updateTileCollisions ety = do
   -- when to move entity downwards (collides with ceiling)
   ety $>> \( Velocity vel
            , pos'@(Position pos)
-           , oldpos'@(Old (Position oldpos))
+           , oldpos' :: OldPosition
            , aabb :: AABB
            , CollisionFlags coll
            ) -> do

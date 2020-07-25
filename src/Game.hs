@@ -7,24 +7,20 @@ import ECS.Base
 import qualified Utils
 import qualified ECS.Manager
 import qualified TileMap
-import qualified ECS.SpriteComponent as Sprite
 import qualified ECS.KeyboardController
 import qualified EventHandler
 import qualified PhysicsEngine
-import qualified Constants
 import qualified TextureManager
 import qualified Init
-import qualified Camera
 import qualified Renderer
 
 
 import Apecs
-import Control.Monad (unless)
 import qualified Data.HashMap.Strict as HM
 import qualified SDL
 import Linear
 import Data.Foldable
-import Foreign.C.Types (CInt, CFloat)
+import Foreign.C.Types (CInt)
 import Data.Text (Text)
 
 

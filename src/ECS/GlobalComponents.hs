@@ -3,9 +3,6 @@
 module ECS.GlobalComponents where
 
 
-import qualified Constants
-
-
 import Apecs.Core (Component, Storage)
 import Apecs.Stores (Global)
 import Data.HashMap.Strict as HM
@@ -74,7 +71,7 @@ instance Component Window where
 
 
 
-type MapTiles = Array.Array (V2 CInt) CInt
+type MapTiles = Array.Array (V2 ICInt) CInt
 
 data TMap = TMap {
   map_M            :: MapTiles
@@ -159,8 +156,10 @@ instance Component DefaultTexture where
   type Storage DefaultTexture = Global DefaultTexture
 
 
+newtype ICInt = ICInt CInt
+  deriving (Real, Enum, Ord, Eq, Integral, Num)
 
-instance Ix CInt where
+instance Ix ICInt where
   range (m,n) = [m..n]
   index b@(m,_n) i | inRange b i = fromIntegral $ i - m
                    | otherwise   = error "CInt index Error"

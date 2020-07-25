@@ -26,7 +26,7 @@ worldToSdlCoords coords = do
   return $ Utils.modY (vpY -) . fmap floor $ camTrans ^^* scaledViewPort
 
 
-mapToSdlCoords :: MapTiles -> V2 CInt -> System' (V2 CInt)
+mapToSdlCoords :: MapTiles -> V2 ICInt -> System' (V2 CInt)
 mapToSdlCoords mapTiles = 
   worldToSdlCoords . Utils.modY (+1) . Utils.mapToWorldCoords mapTiles
 
@@ -47,7 +47,7 @@ scaleRecToCamera (Just (SDL.Rectangle pos size)) = do
   pure . Just $ SDL.Rectangle pos size'
 
 
-
+{-
 -- NOT USABLE YET
 recCameraTransform :: Maybe (SDL.Rectangle CInt) 
                    -> System' (Maybe (SDL.Rectangle CInt))
@@ -57,3 +57,4 @@ recCameraTransform (Just (SDL.Rectangle pos size)) = do
 
 
   pure Nothing
+-}

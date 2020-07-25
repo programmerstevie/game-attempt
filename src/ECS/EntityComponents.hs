@@ -8,7 +8,7 @@ import Apecs.Core (Component, Storage)
 import Apecs.Stores (Map)
 import qualified SDL
 import Linear
-import Foreign.C.Types (CInt, CFloat)
+import Foreign.C.Types (CInt)
 
 
 

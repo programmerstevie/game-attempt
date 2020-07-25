@@ -6,13 +6,9 @@ import qualified Utils
 import Utils ((^^*))
 import qualified Constants
 
-
-import Apecs
 import qualified Data.Array as Array
-import Control.Monad
-import Data.Maybe (fromJust)
 import Data.Foldable
-import Foreign.C.Types (CInt, CFloat)
+import Foreign.C.Types (CFloat)
 import Linear
 
 
@@ -40,8 +36,8 @@ rightWallCollision map_m
       oldCtr + Utils.modY negate hs + V2 Constants.onePix 0
     newBottomRight = Utils.roundVec $
       ctr + Utils.modY negate hs + V2 Constants.onePix 0
-    newTopRight = Utils.roundVec $
-      newBottomRight + V2 0 (Utils.getY hs * 2)
+    --newTopRight = Utils.roundVec $ 
+    --  newBottomRight + V2 0 (Utils.getY hs * 2)
 
     endX = Utils.worldToMapX map_m $ Utils.getX newBottomRight
     begX = min endX $ Utils.worldToMapX map_m (Utils.getX oldBottomRight) + 1
@@ -102,8 +98,8 @@ leftWallCollision map_m
       oldCtr - hs - V2 Constants.onePix 0
     newBottomLeft = Utils.roundVec $
       ctr - hs - V2 Constants.onePix 0
-    newTopLeft = Utils.roundVec $
-      newBottomLeft + V2 0 (Utils.getY hs * 2)
+    --newTopLeft = Utils.roundVec $
+    --  newBottomLeft + V2 0 (Utils.getY hs * 2)
 
     endX = Utils.worldToMapX map_m $ Utils.getX newBottomLeft
     begX = max endX $ Utils.worldToMapX map_m (Utils.getX oldBottomLeft) - 1
@@ -167,8 +163,8 @@ ceilingCollision map_m
       oldCtr + hs + V2 (-Constants.onePix) Constants.onePix
     newTopRight = Utils.roundVec $
       ctr + hs + V2 (-Constants.onePix) Constants.onePix
-    newTopLeft = Utils.roundVec $
-      newTopRight + V2 (2 * Constants.onePix - Utils.getX hs * 2) 0
+    --newTopLeft = Utils.roundVec $
+    --  newTopRight + V2 (2 * Constants.onePix - Utils.getX hs * 2) 0
 
     endY = Utils.worldToMapY map_m $ Utils.getY newTopRight
     begY = max endY $ Utils.worldToMapY map_m (Utils.getY oldTopRight) - 1
@@ -228,8 +224,8 @@ groundCollision map_m
       oldCtr - hs + V2 Constants.onePix (-Constants.onePix)
     newBottomLeft = Utils.roundVec $
       ctr - hs + V2 Constants.onePix (-Constants.onePix)
-    newBottomRight = Utils.roundVec $
-      newBottomLeft + V2 (Utils.getX hs * 2 - 2 * Constants.onePix) 0
+    --newBottomRight = Utils.roundVec $
+    --  newBottomLeft + V2 (Utils.getX hs * 2 - 2 * Constants.onePix) 0
 
     endY = Utils.worldToMapY map_m $ Utils.getY newBottomLeft
     begY = min endY $ Utils.worldToMapY map_m (Utils.getY oldBottomLeft) + 1
@@ -274,7 +270,7 @@ groundCollision map_m
                   + Utils.getY oldPos - Utils.getY pos ) )
 
 
-isOneWayPlatform :: MapTiles -> V2 CInt -> Bool
+isOneWayPlatform :: MapTiles -> V2 ICInt -> Bool
 isOneWayPlatform map_m coords
   | Array.inRange (Array.bounds map_m) coords =
       case map_m Array.! coords of
@@ -283,7 +279,7 @@ isOneWayPlatform map_m coords
   | otherwise = False
 
 
-isObstacle :: MapTiles -> V2 CInt -> Bool
+isObstacle :: MapTiles -> V2 ICInt -> Bool
 isObstacle map_m coords
   | Array.inRange (Array.bounds map_m) coords =
       case map_m Array.! coords of

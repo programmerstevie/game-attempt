@@ -1,7 +1,7 @@
 module Constants where
 
 
-import Foreign.C.Types (CInt, CFloat)
+import Foreign.C.Types (CFloat)
 import Linear
 
 

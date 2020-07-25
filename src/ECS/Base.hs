@@ -11,8 +11,6 @@ module ECS.Base (
 
 import ECS.Components
 
-import qualified SDL
-
 import Apecs
 
 makeWorld "World" [ ''Running

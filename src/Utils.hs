@@ -10,7 +10,6 @@ import ECS.Base
 import qualified Constants as Cons
 
 import Apecs
-import Apecs.Components
 import Apecs.Core
 import Control.Monad
 import Control.Monad.Reader
@@ -18,7 +17,7 @@ import qualified SDL
 import qualified Data.Array as Array
 import Linear
 import Foreign.C.Types (CFloat, CInt)
-import Control.Monad.IO.Class
+
 
 toSeconds :: (Integral i, Floating f) => i -> f
 toSeconds = (/ 1000) . fromIntegral
@@ -123,22 +122,22 @@ scaleToSdl :: V2 CFloat -> V2 CInt
 scaleToSdl = fmap $ floor . (* Cons.coordsScale)
 
 
-worldToMapCoords :: MapTiles -> V2 CFloat -> V2 CInt
+worldToMapCoords :: MapTiles -> V2 CFloat -> V2 ICInt
 worldToMapCoords map_m = swapV . modY (yHeight -) . fmap floor
   where yHeight = getX . snd $ Array.bounds map_m
 
 
-mapToWorldCoords :: MapTiles -> V2 CInt -> V2 CFloat
+mapToWorldCoords :: MapTiles -> V2 ICInt -> V2 CFloat
 mapToWorldCoords map_m = fmap fromIntegral . modY (yHeight -) . swapV
   where yHeight = getX . snd $ Array.bounds map_m
 
 
-worldToMapY, worldToMapX ::  MapTiles -> CFloat -> CInt
+worldToMapY, worldToMapX ::  MapTiles -> CFloat -> ICInt
 worldToMapY map_m y = getX $ worldToMapCoords map_m (V2 0 y)
 worldToMapX map_m x = getY $ worldToMapCoords map_m (V2 x 0)
 
 
-mapToWorldY, mapToWorldX :: MapTiles -> CInt -> CFloat
+mapToWorldY, mapToWorldX :: MapTiles -> ICInt -> CFloat
 mapToWorldY map_m y = getY $ mapToWorldCoords map_m (V2 y 0)
 mapToWorldX map_m x = getX $ mapToWorldCoords map_m (V2 0 x)
 
@@ -172,9 +171,9 @@ roundVec = fmap pixRound
 
 pixRound :: CFloat -> CFloat
 pixRound x
-  | ending /= 0.5 = fromIntegral (round bigX) * Cons.onePix
+  | ending /= 0.5 = fromIntegral (round bigX :: CInt) * Cons.onePix
   | even wholeX   = fromIntegral       wholeX * Cons.onePix
   | otherwise     = fromIntegral (wholeX + 1) * Cons.onePix
     where bigX = x / Cons.onePix
-          wholeX = floor bigX
+          wholeX = floor bigX :: CInt
           ending = bigX - fromIntegral wholeX

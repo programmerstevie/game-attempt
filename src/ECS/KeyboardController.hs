@@ -9,7 +9,7 @@ module ECS.KeyboardController where
 
 import ECS.Base
 import qualified Utils
-import Utils (($~~), ($>>))
+import Utils (($>>))
 import qualified Action
 import qualified Constants as Cons
 
@@ -28,16 +28,16 @@ updatePrevControls = set global =<< (PrevControlInput <$> get global)
 
 setControls :: SDL.Scancode -> SDL.InputMotion -> System' ()
 setControls keyScanCode motion = do
-  let pressed = case motion of
+  let pressed_ = case motion of
           SDL.Pressed  -> True
           SDL.Released -> False
   global $~ \(controls :: ControlInput) ->
     case keyScanCode of
-        SDL.ScancodeSpace -> controls { upKey = pressed }
-        SDL.ScancodeW -> controls { upKey    = pressed }
-        SDL.ScancodeA -> controls { leftKey  = pressed }
-        SDL.ScancodeS -> controls { downKey  = pressed }
-        SDL.ScancodeD -> controls { rightKey = pressed }
+        SDL.ScancodeSpace -> controls { upKey = pressed_ }
+        SDL.ScancodeW -> controls { upKey    = pressed_ }
+        SDL.ScancodeA -> controls { leftKey  = pressed_ }
+        SDL.ScancodeS -> controls { downKey  = pressed_ }
+        SDL.ScancodeD -> controls { rightKey = pressed_ }
         _ -> controls
 
 pressed :: (ControlInput -> Bool) -> System' Bool
