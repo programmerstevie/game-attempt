@@ -5,7 +5,6 @@ import ECS.Base
 import qualified ECS.KeyboardController
 
 
-import Data.List (nub)
 import Apecs
 import qualified SDL
 

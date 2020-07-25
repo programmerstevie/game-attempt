@@ -49,25 +49,25 @@ instance Component DT where
 
 
 
-newtype Renderer = Renderer { unRenderer :: SDL.Renderer }
+newtype CRenderer = CRenderer { unRenderer :: SDL.Renderer }
 
-instance Semigroup Renderer where
+instance Semigroup CRenderer where
   (<>) = mappend
-instance Monoid Renderer where
-  mempty = Renderer $ SDL_T.Renderer nullPtr
-instance Component Renderer where
-  type Storage Renderer = Global Renderer
+instance Monoid CRenderer where
+  mempty = CRenderer $ SDL_T.Renderer nullPtr
+instance Component CRenderer where
+  type Storage CRenderer = Global CRenderer
 
 
 
-newtype Window = Window { unWindow :: SDL.Window }
+newtype CWindow = CWindow { unWindow :: SDL.Window }
 
-instance Semigroup Window where
+instance Semigroup CWindow where
   (<>) = mappend
-instance Monoid Window where
-  mempty = Window $ SDL_T.Window nullPtr
-instance Component Window where
-  type Storage Window = Global Window
+instance Monoid CWindow where
+  mempty = CWindow $ SDL_T.Window nullPtr
+instance Component CWindow where
+  type Storage CWindow = Global CWindow
 
 
 

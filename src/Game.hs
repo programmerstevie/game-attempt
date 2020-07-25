@@ -13,6 +13,7 @@ import qualified PhysicsEngine
 import qualified TextureManager
 import qualified Init
 import qualified Renderer
+import qualified Camera
 
 
 import Apecs
@@ -26,32 +27,32 @@ import Data.Text (Text)
 
 init :: Text -> V2 CInt -> V2 CInt -> Bool -> System' ()
 init title pos size fullscr = do
-    SDL.initializeAll
-    Utils.consoleLog "Subsystems Initialized!"
+  SDL.initializeAll
+  Utils.consoleLog "Subsystems Initialized!"
 
-    window <- SDL.createWindow title $
-      SDL.defaultWindow { SDL.windowPosition    = SDL.Absolute $ SDL.P pos
-                        , SDL.windowInitialSize = size
-                        , SDL.windowMode        = if fullscr 
-                                                    then SDL.Fullscreen 
-                                                    else SDL.Windowed
-                        }
-    global $= Window window
-    Utils.consoleLog "Window created!"
-    
-    renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
-    global $= Renderer renderer
-    Utils.consoleLog "Renderer created!"
+  window <- SDL.createWindow title $
+    SDL.defaultWindow { SDL.windowPosition    = SDL.Absolute $ SDL.P pos
+                      , SDL.windowInitialSize = size
+                      , SDL.windowMode        = if fullscr
+                                                  then SDL.Fullscreen 
+                                                  else SDL.Windowed
+                      }
+  global $= CWindow window
+  Utils.consoleLog "Window created!"
+  
+  renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
+  global $= CRenderer renderer
+  Utils.consoleLog "Renderer created!"
 
-    global $= Camera 0 (V2 31 20)
+  global $= Camera 0 (V2 31 20)
 
-    global $= (Running True, Time 0)
-    set global =<< TileMap.initMap
+  global $= (Running True, Time 0)
+  set global =<< TileMap.initMap
 
-    TextureManager.loadTextures [ "assets/DEFAULT.png"
-                                , "assets/Background2048x1536.png"
-                                ]
-    Init.initPlayer
+  TextureManager.loadTextures [ "assets/DEFAULT.png"
+                              , "assets/Background2048x1536.png"
+                              ]
+  Init.initPlayer
 
 
 clean :: System' ()
@@ -59,8 +60,8 @@ clean = do
   cmap $ \(Active _) -> Active False
   ECS.Manager.refresh
 
-  (  Window window
-   , Renderer renderer
+  (  CWindow window
+   , CRenderer renderer
    , Textures texMap
    ) <- get global
   traverse_ SDL.destroyTexture $ HM.elems texMap
@@ -91,12 +92,13 @@ update = do
   ECS.Manager.refresh
   ECS.Manager.actionUpdate
   PhysicsEngine.update
+  Camera.updateCamera
   ECS.Manager.updateSprites
 
 
 draw :: System' ()
 draw = do
-  Renderer renderer <- get global
+  CRenderer renderer <- get global
   SDL.clear renderer
   TileMap.drawMap
   ECS.Manager.draw

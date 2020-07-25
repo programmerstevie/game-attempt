@@ -16,7 +16,7 @@ import qualified SDL.Image as IMG
 
 loadTexture :: FilePath -> System' SDL.Texture
 loadTexture path = do
-  Renderer renderer <- get global
+  CRenderer renderer <- get global
   tempSurface <- IMG.load path
   tex <- SDL.createTextureFromSurface renderer tempSurface
   SDL.freeSurface tempSurface

@@ -14,8 +14,8 @@ import ECS.Components
 import Apecs
 
 makeWorld "World" [ ''Running
-                  , ''Renderer
-                  , ''Window
+                  , ''CRenderer
+                  , ''CWindow
                   , ''Camera
                   , ''Time
                   , ''DT

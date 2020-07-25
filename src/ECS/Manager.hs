@@ -3,6 +3,7 @@
 {- HLINT ignore "Redundant do" -}
 module ECS.Manager where
 
+
 import ECS.Base
 import qualified Utils
 import Utils ((^^*))
@@ -11,14 +12,15 @@ import qualified Camera
 import qualified Renderer
 import qualified Action
 
+
 import Apecs
 import qualified SDL
 import qualified TextureManager
 import qualified Data.HashMap.Strict as HM
 import Data.Bits
-import Foreign.C.Types ()
 import Control.Monad (unless, when)
 import Linear
+
 
 
 updateSprites :: System' ()
@@ -59,7 +61,7 @@ actionUpdate =
           Velocity $ V2 (signum vx * min (abs vx) wlkspd) (max termvel vy)
         when onGround $
           ety $= Stand
-      
+
 
 draw :: System' ()
 draw = do
@@ -87,7 +89,7 @@ drawAABB AABB{ center   = ctr
   rectSize   <- Camera.scaleToCamera $ 
                   fmap floor $ (scl ^^* hs) ^* (2 * Cons.coordsScale)
   let rect = Utils.makeRect rectCoords rectSize
-  Renderer renderer <- get global
+  CRenderer renderer <- get global
   SDL.rendererDrawColor renderer SDL.$= V4 200 0 0 255
   SDL.drawRect renderer (Just rect)
 

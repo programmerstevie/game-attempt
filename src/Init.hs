@@ -13,7 +13,7 @@ import Linear
 
 initPlayer :: System' ()
 initPlayer = do
-  player <- newEntity 
+  player <- newEntity
               ( Player
               , Stand
               , FaceRight
@@ -34,4 +34,3 @@ initPlayer = do
                   , scale    = V2 1 1
                   }
   player $~ \(sprite :: Sprite) -> sprite{ flip_S = Cons.flipX }
-

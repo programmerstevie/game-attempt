@@ -13,6 +13,8 @@ import qualified Utils
 import Foreign.C.Types (CInt, CFloat)
 
 
+
+
 setFullViewPort :: System' ()
 setFullViewPort = 
   (SDL.rendererViewport . unRenderer <$> get global) >>= (SDL.$= Nothing)
@@ -20,7 +22,7 @@ setFullViewPort =
 
 setCamViewPort :: System' ()
 setCamViewPort = do
-  (cam :: Camera, Renderer renderer) <- get global
+  (cam :: Camera, CRenderer renderer) <- get global
   winSize <- getWindowSizeAbsolute
   SDL.rendererViewport renderer SDL.$= getViewPort winSize cam
 

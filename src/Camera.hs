@@ -1,11 +1,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Camera where
 
+
 import ECS.Base
 import qualified Constants as Cons
 import qualified Utils
 import qualified Renderer
 import Utils ((^^*), (^^/))
+
 
 import Apecs
 import Linear
@@ -13,8 +15,29 @@ import qualified SDL
 import Foreign.C.Types (CFloat, CInt)
 
 
+
+updateCamera :: System' ()
+updateCamera = cmapM_ $ \(Player, Position pos, spr :: Sprite) -> do
+  scaleCoords <- coordsScale
+  camCtr <- (^^/ scaleCoords) . fmap fromIntegral 
+        <$> Renderer.getViewPortSize
+  let pos' = case destRect_S spr of
+             Nothing -> 
+               error "[Camera.updateCamera] : Player without destRect_S!"
+             Just (SDL.Rectangle _ size) -> 
+               pos + (fmap fromIntegral size ^^/ (2 *^ scaleCoords))
+  global $~ \(camera :: Camera) -> camera{ gameCoords_C = pos' - camCtr ^/ 2 }
+
+
+coordsScale :: System' (V2 CFloat)
+coordsScale = do
+  Camera{ size_C = sizeC } <- get global
+  vpSize <- fmap fromIntegral <$> Renderer.getViewPortSize
+  pure $ vpSize ^^/ sizeC
+
+
 worldToCamera :: Camera -> V2 CFloat -> V2 CFloat
-worldToCamera Camera{ gameCoords_C = coords_C} coords = coords - coords_C
+worldToCamera Camera{ gameCoords_C = coords_C } coords = coords - coords_C
 
 
 worldToSdlCoords :: V2 CFloat -> System' (V2 CInt)
@@ -27,7 +50,7 @@ worldToSdlCoords coords = do
 
 
 mapToSdlCoords :: MapTiles -> V2 ICInt -> System' (V2 CInt)
-mapToSdlCoords mapTiles = 
+mapToSdlCoords mapTiles =
   worldToSdlCoords . Utils.modY (+1) . Utils.mapToWorldCoords mapTiles
 
 
