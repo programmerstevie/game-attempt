@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 859c4ae7c7089da9c4c27f637a5c8837d3c6e657353e45314964c65aca226f96
+-- hash: 3de80d8fd07f7c9bd72f9ab4f29467e5f1354609ac398a970ef7217a2820fae5
 
 name:           miniGame
 version:        0.1.0.0
@@ -35,7 +35,6 @@ library
       ECS.Components
       ECS.EntityComponents
       ECS.GlobalComponents
-      ECS.KeyboardController
       ECS.Manager
       ECS.PhysicsComponents
       ECS.PlayerComponents
@@ -43,6 +42,7 @@ library
       EventHandler
       Game
       Init
+      KeyboardController
       PhysicsEngine
       Renderer
       TextureManager

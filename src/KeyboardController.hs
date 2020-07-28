@@ -3,7 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {- HLINT ignore "Redundant do" -}
-module ECS.KeyboardController where
+module KeyboardController where
 
 -- import qualified
 
@@ -20,9 +20,6 @@ import qualified SDL
 import Linear
 
 
-data KeyInput = UpKey | LeftKey | DownKey | RightKey
-  deriving Enum
-
 updatePrevControls :: System' ()
 updatePrevControls = set global =<< (PrevControlInput <$> get global)
 
@@ -34,7 +31,7 @@ setControls keyScanCode motion = do
   global $~ \(controls :: ControlInput) ->
     case keyScanCode of
         SDL.ScancodeSpace -> controls { upKey = pressed_ }
-        SDL.ScancodeW -> controls { upKey    = pressed_ }
+        SDL.ScancodeW     -> controls { upKey = pressed_ }
         SDL.ScancodeA -> controls { leftKey  = pressed_ }
         SDL.ScancodeS -> controls { downKey  = pressed_ }
         SDL.ScancodeD -> controls { rightKey = pressed_ }
@@ -91,6 +88,7 @@ handleStand ety = movement
               Utils.modY (subtract Cons.oneWayPlatformThreshold) pos
             ety $~ \(CollisionFlags coll) -> CollisionFlags $ clearBit coll 10
       | otherwise = pure ()
+
 
 handleWalk :: Entity -> ControlInput -> System' ()
 handleWalk ety = movement

@@ -8,7 +8,7 @@ import Apecs.Core (Component, Storage)
 import Apecs.Stores (Map)
 import qualified SDL
 import Linear
-import Foreign.C.Types (CInt)
+import Foreign.C.Types (CInt, CFloat)
 
 
 
@@ -52,6 +52,19 @@ instance Component Sprite where
 
 
 
+data Animation = Animation { filePath_A  :: FilePath
+                           , srcRects_A  :: [Maybe (SDL.Rectangle CInt)]
+                           , destRects_A :: [Maybe (SDL.Rectangle CInt)]
+                           , delta_A     :: CFloat
+                           , time0_A     :: CFloat
+                           , action_A    :: Maybe Action
+                           }
+
+instance Component Animation where
+  type Storage Animation = Map Animation
+
+
+
 -- Aliases
 
 type EntityComponents = ( Player
@@ -60,6 +73,7 @@ type EntityComponents = ( Player
                           , Action
                           , Facing
                           , Sprite
+                          , Animation
                           , Active
                           )
                         )

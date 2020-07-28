@@ -2,7 +2,7 @@ module EventHandler where
 
 
 import ECS.Base
-import qualified ECS.KeyboardController
+import qualified KeyboardController
 
 
 import Apecs
@@ -21,4 +21,4 @@ handleKeyEvent ev = do
       motion    = SDL.keyboardEventKeyMotion ev
       keycode   = SDL.keysymKeycode  keysym
       scancode  = SDL.keysymScancode keysym
-  ECS.KeyboardController.setControls scancode motion
+  KeyboardController.setControls scancode motion

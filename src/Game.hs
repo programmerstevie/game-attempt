@@ -7,7 +7,7 @@ import ECS.Base
 import qualified Utils
 import qualified ECS.Manager
 import qualified TileMap
-import qualified ECS.KeyboardController
+import qualified KeyboardController
 import qualified EventHandler
 import qualified PhysicsEngine
 import qualified TextureManager
@@ -44,7 +44,7 @@ init title pos size fullscr = do
   global $= CRenderer renderer
   Utils.consoleLog "Renderer created!"
 
-  global $= Camera 0 (V2 31 20)
+  global $= Camera 0 (V2 25 20)
 
   global $= (Running True, Time 0)
   set global =<< TileMap.initMap
@@ -77,10 +77,10 @@ clean = do
 
 handleEvents :: System' ()
 handleEvents = do
-  ECS.KeyboardController.updatePrevControls
+  KeyboardController.updatePrevControls
   payload <- map SDL.eventPayload <$> SDL.pollEvents 
   mapM_ EventHandler.handleEvent payload
-  ECS.KeyboardController.keyboardHandle
+  KeyboardController.keyboardHandle
 
 
 update :: System' ()

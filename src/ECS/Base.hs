@@ -26,6 +26,7 @@ makeWorld "World" [ ''Running
                   , ''Textures
 
                   , ''Sprite
+                  , ''Animation
                   , ''Active
                   , ''Action
                   , ''Facing

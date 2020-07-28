@@ -22,10 +22,10 @@ updateCamera = cmapM_ $ \(Player, Position pos, spr :: Sprite) -> do
   camCtr <- (^^/ scaleCoords) . fmap fromIntegral 
         <$> Renderer.getViewPortSize
   let pos' = case destRect_S spr of
-             Nothing -> 
-               error "[Camera.updateCamera] : Player without destRect_S!"
-             Just (SDL.Rectangle _ size) -> 
-               pos + (fmap fromIntegral size ^^/ (2 *^ scaleCoords))
+             Nothing ->
+              error "[Camera.updateCamera] : Player without destRect_S!"
+             Just (SDL.Rectangle _ size) ->
+              pos + (fmap fromIntegral size ^^/ (2 *^ scaleCoords))
   global $~ \(camera :: Camera) -> camera{ gameCoords_C = pos' - camCtr ^/ 2 }
 
 
