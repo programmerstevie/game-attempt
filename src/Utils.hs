@@ -9,8 +9,10 @@ module Utils where
 import ECS.Base
 import qualified Constants as Cons
 
+
 import Apecs
 import Apecs.Core
+import Control.Applicative
 import Control.Monad
 import Control.Monad.Reader
 import qualified SDL
@@ -45,12 +47,19 @@ setRectPos (Just (SDL.Rectangle _ size)) pos =
   Just $ SDL.Rectangle (SDL.P pos) size
 setRectPos Nothing _ = Nothing
 
-modRectPos :: Maybe (SDL.Rectangle CInt)
-           -> (V2 CInt -> V2 CInt)
+modRectPos :: (V2 CInt -> V2 CInt)
            -> Maybe (SDL.Rectangle CInt)
-modRectPos (Just (SDL.Rectangle (SDL.P pos) size)) fun =
+           -> Maybe (SDL.Rectangle CInt)
+modRectPos fun (Just (SDL.Rectangle (SDL.P pos) size)) =
   Just $ SDL.Rectangle (SDL.P $ fun pos) size
-modRectPos Nothing _ = Nothing
+modRectPos _ Nothing = Nothing
+
+modRectSize :: (V2 CInt -> V2 CInt)
+           -> Maybe (SDL.Rectangle CInt)
+           -> Maybe (SDL.Rectangle CInt)
+modRectSize fun (Just (SDL.Rectangle (SDL.P pos) size)) =
+  Just $ SDL.Rectangle (SDL.P pos) $ fun size
+modRectSize _ Nothing = Nothing
 
 setX, setY :: V2 a -> a -> V2 a
 setX (V2 _ vy) v = V2 v vy
@@ -143,12 +152,12 @@ mapToWorldX map_m x = getX $ mapToWorldCoords map_m (V2 0 x)
 
 
 elemTimes, (^^*) :: Num n => V2 n -> V2 n -> V2 n
-elemTimes (V2 ax ay) (V2 bx by) = V2 (ax * bx) (ay * by)
+elemTimes = liftA2 (*)
 (^^*) = elemTimes
 
 
 elemDiv, (^^/) :: V2 CFloat -> V2 CFloat -> V2 CFloat
-elemDiv (V2 ax ay) (V2 bx by) = V2 (ax / bx) (ay / by)
+elemDiv = liftA2 (/)
 (^^/) = elemDiv
 
 
@@ -158,7 +167,7 @@ setPos ety (Position pos) = do
   hasAABB <- exists ety (Proxy :: Proxy AABB)
   when hasAABB $ do
     aabb :: AABB <- get ety
-    ety $= aabb{ center = pos + offset aabb }
+    ety $= aabb{ center_aabb = pos + offset_aabb aabb }
 
 
 lerp :: V2 CFloat -> V2 CFloat -> CFloat -> V2 CFloat

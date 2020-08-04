@@ -19,6 +19,6 @@ handleKeyEvent :: SDL.KeyboardEventData -> System' ()
 handleKeyEvent ev = do
   let keysym    = SDL.keyboardEventKeysym ev
       motion    = SDL.keyboardEventKeyMotion ev
-      keycode   = SDL.keysymKeycode  keysym
+      --keycode   = SDL.keysymKeycode  keysym
       scancode  = SDL.keysymScancode keysym
   KeyboardController.setControls scancode motion

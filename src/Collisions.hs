@@ -26,8 +26,8 @@ rightWallCollision map_m
                    (Position pos)
     = asum . map loopX $ tileIndexXs
   where
-    hs   = halfSize aabb ^^* scale aabb
-    ofst = offset   aabb ^^* scale aabb
+    hs   = halfSize_aabb aabb ^^* scale_aabb aabb
+    ofst = offset_aabb   aabb ^^* scale_aabb aabb
 
     ctr = pos + ofst
     oldCtr = oldPos + ofst
@@ -88,8 +88,8 @@ leftWallCollision map_m
                   (Position pos)
     = asum . map loopX $ tileIndexXs
   where
-    hs   = halfSize aabb ^^* scale aabb
-    ofst = offset   aabb ^^* scale aabb
+    hs   = halfSize_aabb aabb ^^* scale_aabb aabb
+    ofst = offset_aabb   aabb ^^* scale_aabb aabb
 
     ctr = pos + ofst
     oldCtr = oldPos + ofst
@@ -153,8 +153,8 @@ ceilingCollision map_m
                  (Position pos) 
     = asum . map loopY $ tileIndexYs
   where
-    hs   = halfSize aabb ^^* scale aabb
-    ofst = offset   aabb ^^* scale aabb
+    hs   = halfSize_aabb aabb ^^* scale_aabb aabb
+    ofst = offset_aabb   aabb ^^* scale_aabb aabb
 
     ctr    = pos + ofst
     oldCtr = oldPos + ofst
@@ -214,8 +214,8 @@ groundCollision map_m
                 (Position pos)
   = asum . map loopY $ tileIndexYs
   where
-    hs   = halfSize aabb ^^* scale aabb
-    ofst = offset   aabb ^^* scale aabb
+    hs   = halfSize_aabb aabb ^^* scale_aabb aabb
+    ofst = offset_aabb   aabb ^^* scale_aabb aabb
 
     oldCtr = oldPos + ofst
     ctr    = pos + ofst
@@ -291,9 +291,9 @@ isObstacle map_m coords
 
 
 overlaps :: AABB -> AABB -> Bool
-overlaps AABB{ center   = V2 cxA cyA
-             , halfSize = V2 hWA hHA }
-         AABB{ center   = V2 cxB cyB
-             , halfSize = V2 hWB hHB }
+overlaps AABB{ center_aabb   = V2 cxA cyA
+             , halfSize_aabb = V2 hWA hHA }
+         AABB{ center_aabb   = V2 cxB cyB
+             , halfSize_aabb = V2 hWB hHB }
   =  (abs (cxA - cxB) <= hWA + hWB) 
   && (abs (cyA - cyB) <= hHA + hHB)

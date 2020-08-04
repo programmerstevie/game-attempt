@@ -36,6 +36,7 @@ init title pos size fullscr = do
                       , SDL.windowMode        = if fullscr
                                                   then SDL.Fullscreen 
                                                   else SDL.Windowed
+                      , SDL.windowResizable   = True
                       }
   global $= CWindow window
   Utils.consoleLog "Window created!"

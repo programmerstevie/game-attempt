@@ -10,10 +10,10 @@ import Foreign.C.Types (CShort, CFloat)
 
 
 
-data AABB = AABB { center   :: V2 CFloat
-                 , halfSize :: V2 CFloat
-                 , offset   :: V2 CFloat
-                 , scale    :: V2 CFloat }
+data AABB = AABB { center_aabb   :: V2 CFloat
+                 , halfSize_aabb :: V2 CFloat
+                 , offset_aabb   :: V2 CFloat
+                 , scale_aabb    :: V2 CFloat }
 
 instance Component AABB where
   type Storage AABB = Map AABB

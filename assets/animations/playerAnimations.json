@@ -1,0 +1,40 @@
+{
+  "name": "player",
+  "scale": 1,
+  "types": ["walk", "idle", "jump_up", "jump_down"],
+  "default": "idle",
+  "animations": {
+    "walk": {
+      "dT": 0.1,
+      "file_path": "assets\\animations\\Man_walk.png",
+      "src_coords": [ [[0  , 0], [48 , 48]]
+                    , [[48 , 0], [96 , 48]]
+                    , [[96 , 0], [144, 48]]
+                    , [[144, 0], [192, 48]]
+                    , [[192, 0], [240, 48]]
+                    , [[240, 0], [288, 48]]
+                    ]
+    },
+    "idle": {
+      "dT": 0.1,
+      "file_path": "assets\\animations\\Man_idle.png",
+      "src_coords": [ [[0  , 0], [48 , 48]]
+                    , [[48 , 0], [96 , 48]]
+                    , [[96 , 0], [144, 48]]
+                    , [[144, 0], [192, 48]]
+                    ]
+    },
+    "jump_up": {
+      "dT": 1,
+      "file_path": "assets\\animations\\Man_walk.png",
+      "src_coords": [ [[192, 0], [240, 48]]
+                    ]
+    },
+    "jump_down": {
+      "dT": 1,
+      "file_path": "assets\\animations\\Man_walk.png",
+      "src_coords": [ [[144, 0], [192, 48]]
+                    ]
+    }
+  }
+}

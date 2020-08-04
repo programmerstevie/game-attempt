@@ -6,6 +6,7 @@ module ECS.Base (
   System'
 , World
 , initWorld
+, EntityComponents
 , module ECS.Components
 ) where
 
@@ -24,6 +25,7 @@ makeWorld "World" [ ''Running
                   , ''PrevControlInput
                   , ''DefaultTexture
                   , ''Textures
+                  , ''AnimationMap
 
                   , ''Sprite
                   , ''Animation
@@ -57,3 +59,17 @@ makeWorld "World" [ ''Running
                   ]
 
 type System' a = System World a
+
+
+-- Aliases
+
+type EntityComponents = ( Player
+                        , Dinosaur
+                        , ( PhysicsComponents
+                          , Action
+                          , Facing
+                          , Sprite
+                          , Animation
+                          , Active
+                          )
+                        )

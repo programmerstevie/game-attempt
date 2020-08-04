@@ -27,7 +27,7 @@ main = do
     Game.init "GameEngine"
               (V2 SDL.Raw.SDL_WINDOWPOS_CENTERED 
                   SDL.Raw.SDL_WINDOWPOS_CENTERED)
-              (V2 800 640)
+              (V2 640 360)
               False
   runSystem gameLoop world
   runSystem Game.clean world

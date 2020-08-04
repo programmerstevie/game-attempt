@@ -1,16 +1,24 @@
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module ECS.GlobalComponents where
 
 
+import ECS.AnimationComponents
+
+
 import Apecs.Core (Component, Storage)
 import Apecs.Stores (Global)
-import Data.HashMap.Strict as HM
+import Control.Monad (forM)
+import Data.Aeson
 import Data.Ix
+import Data.Text (Text, unpack)
 import Foreign.Ptr (nullPtr)
-import Foreign.C.Types (CInt, CFloat)
+import Foreign.C.Types (CFloat(..), CInt(..))
 import Linear
 import qualified Data.Array as Array
+import qualified Data.HashMap.Strict as HM
 import qualified SDL
 import qualified SDL.Internal.Types as SDL_T
 
@@ -135,7 +143,7 @@ instance Component PrevControlInput where
 
 
 
-newtype Textures = Textures (HM.HashMap String SDL.Texture)
+newtype Textures = Textures { unTextures :: HM.HashMap String SDL.Texture }
 
 instance Semigroup Textures where
   (<>) = mappend
@@ -143,6 +151,69 @@ instance Monoid Textures where
   mempty = Textures HM.empty
 instance Component Textures where
   type Storage Textures = Global Textures
+
+
+
+newtype AnimationMap = AnimationMap { 
+  unAnimationMap :: HM.HashMap String Animation 
+}
+
+instance Semigroup AnimationMap where
+  (<>) = mappend
+instance Monoid AnimationMap where
+  mempty = AnimationMap HM.empty
+instance Component AnimationMap where
+  type Storage AnimationMap = Global AnimationMap
+
+instance FromJSON AnimationMap where
+  parseJSON = withObject "Animation" $ \v -> do
+    name       :: String <- v .: "name"
+    scale      :: CFloat <- CFloat <$> v .: "scale"
+    types      :: [Text] <- v .: "types"
+    def        :: String <- v.: "default"
+    animations :: Object <- v .: "animations"
+    animMap <- fmap HM.fromList . forM types $ \t -> do
+      animation  :: Object <- animations .: t
+      dT         :: CFloat <- CFloat <$> animation .: "dT"
+      file_path  :: FilePath <- animation .: "file_path"
+
+      src_rects  :: [Maybe (SDL.Rectangle CInt)]
+        <- map fromCorners <$> animation .: "src_coords"
+      let dest_rects = map
+               (modRectSize . fmap $ floor . (* scale) . fromIntegral)
+                src_rects
+          name' = name ++ '.' : unpack t
+      return ( name',
+               Animation {
+                 name_A      = name'
+               , filePath_A  = file_path
+               , srcRects_A  = src_rects
+               , destRects_A = dest_rects
+               , length_A    = length src_rects
+               , delta_A     = dT
+               , time0_A     = 0
+               }
+             )
+    return . AnimationMap $ 
+      case HM.lookup (name ++ '.' : def) animMap of
+        Just anim -> HM.insert (name ++ '.' : "default") anim animMap
+        Nothing   -> error "NO DEFAULT ANIMATION"
+
+    where
+      fromCorners :: ((Int, Int), (Int, Int)) -> Maybe (SDL.Rectangle CInt)
+      fromCorners ((x0, y0), (x1, y1)) = 
+        let x = fromIntegral x0
+            y = fromIntegral y0
+            w = fromIntegral $ x1 - x0
+            h = fromIntegral $ y1 - y0
+        in Just . SDL.Rectangle (SDL.P $ V2 x y) $ V2 w h
+
+      modRectSize :: (V2 CInt -> V2 CInt)
+                -> Maybe (SDL.Rectangle CInt)
+                -> Maybe (SDL.Rectangle CInt)
+      modRectSize fun (Just (SDL.Rectangle p size)) = 
+        Just $ SDL.Rectangle p $ fun size
+      modRectSize _ Nothing = Nothing
 
 
 
@@ -156,7 +227,7 @@ instance Component DefaultTexture where
   type Storage DefaultTexture = Global DefaultTexture
 
 
-newtype ICInt = ICInt CInt
+newtype ICInt = ICInt { unICInt :: CInt }
   deriving (Real, Enum, Ord, Eq, Integral, Num)
 
 instance Ix ICInt where

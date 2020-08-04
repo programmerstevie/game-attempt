@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3de80d8fd07f7c9bd72f9ab4f29467e5f1354609ac398a970ef7217a2820fae5
+-- hash: a6cad098afef4dfc18e54f4d42ac93786ebd99f4cd3df81eedfe82f586d30b79
 
 name:           miniGame
 version:        0.1.0.0
@@ -31,6 +31,7 @@ library
       Camera
       Collisions
       Constants
+      ECS.AnimationComponents
       ECS.Base
       ECS.Components
       ECS.EntityComponents
@@ -53,7 +54,8 @@ library
   hs-source-dirs:
       src
   build-depends:
-      apecs
+      aeson
+    , apecs
     , array
     , base >=4.7 && <5
     , linear

@@ -10,6 +10,7 @@ import Utils ((^^*), (^^/))
 
 
 import Apecs
+import Control.Applicative
 import Linear
 import qualified SDL
 import Foreign.C.Types (CFloat, CInt)
@@ -17,23 +18,19 @@ import Foreign.C.Types (CFloat, CInt)
 
 
 updateCamera :: System' ()
-updateCamera = cmapM_ $ \(Player, Position pos, spr :: Sprite) -> do
+updateCamera = cmapM_ $ \(Player, aabb :: AABB) -> do
   scaleCoords <- coordsScale
-  camCtr <- (^^/ scaleCoords) . fmap fromIntegral 
-        <$> Renderer.getViewPortSize
-  let pos' = case destRect_S spr of
-             Nothing ->
-              error "[Camera.updateCamera] : Player without destRect_S!"
-             Just (SDL.Rectangle _ size) ->
-              pos + (fmap fromIntegral size ^^/ (2 *^ scaleCoords))
-  global $~ \(camera :: Camera) -> camera{ gameCoords_C = pos' - camCtr ^/ 2 }
+  camCtr <- (^^/ scaleCoords) . fmap fromIntegral <$> Renderer.getViewPortSize
+  global $~ \(camera :: Camera) -> 
+    camera{ gameCoords_C = center_aabb aabb - camCtr ^/ 2 }
+  Renderer.setCamViewPort
 
 
 coordsScale :: System' (V2 CFloat)
 coordsScale = do
   Camera{ size_C = sizeC } <- get global
-  vpSize <- fmap fromIntegral <$> Renderer.getViewPortSize
-  pure $ vpSize ^^/ sizeC
+  vpSize <- Renderer.getViewPortSize
+  pure $ liftA2 ((/) . fromIntegral) vpSize sizeC
 
 
 worldToCamera :: Camera -> V2 CFloat -> V2 CFloat
@@ -42,11 +39,11 @@ worldToCamera Camera{ gameCoords_C = coords_C } coords = coords - coords_C
 
 worldToSdlCoords :: V2 CFloat -> System' (V2 CInt)
 worldToSdlCoords coords = do
-  Camera{ gameCoords_C = coordsC, size_C = sizeC } <- get global
-  viewPortSize@(V2 _ vpY) <- Renderer.getViewPortSize
-  let camTrans = coords - coordsC
-      scaledViewPort = fmap fromIntegral viewPortSize ^^/ sizeC
-  return $ Utils.modY (vpY -) . fmap floor $ camTrans ^^* scaledViewPort
+  camera :: Camera <- get global
+  V2 _ vpY <- fmap fromIntegral <$> Renderer.getViewPortSize
+  let camTrans = worldToCamera camera coords
+  scaledViewPort <- coordsScale
+  return $ fmap floor $ Utils.modY (vpY -) $ camTrans ^^* scaledViewPort
 
 
 mapToSdlCoords :: MapTiles -> V2 ICInt -> System' (V2 CInt)
@@ -57,7 +54,7 @@ mapToSdlCoords mapTiles =
 scaleToCamera :: V2 CInt -> System' (V2 CInt)
 scaleToCamera size = do
   Camera{ size_C = sizeC } <- get global
-  let size' = (fmap fromIntegral size ^^/ sizeC) ^/ Cons.coordsScale
+  let size' = liftA2 ((/) . fromIntegral) size sizeC ^/ Cons.coordsScale
   vpSize <- fmap fromIntegral <$> Renderer.getViewPortSize
   pure $ fmap ceiling $ vpSize ^^* size'
 

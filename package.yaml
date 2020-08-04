@@ -34,6 +34,7 @@ library:
     - linear
     - vector
     - mtl
+    - aeson
 
 executables:
   miniGame-exe:

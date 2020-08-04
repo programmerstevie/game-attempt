@@ -1,8 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiWayIf #-}
-{- HLINT ignore "Redundant do" -}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE LambdaCase          #-}
+{-# LANGUAGE MultiWayIf          #-}
 module KeyboardController where
 
 -- import qualified
@@ -23,6 +22,7 @@ import Linear
 updatePrevControls :: System' ()
 updatePrevControls = set global =<< (PrevControlInput <$> get global)
 
+
 setControls :: SDL.Scancode -> SDL.InputMotion -> System' ()
 setControls keyScanCode motion = do
   let pressed_ = case motion of
@@ -36,6 +36,7 @@ setControls keyScanCode motion = do
         SDL.ScancodeS -> controls { downKey  = pressed_ }
         SDL.ScancodeD -> controls { rightKey = pressed_ }
         _ -> controls
+
 
 pressed :: (ControlInput -> Bool) -> System' Bool
 pressed key = do
@@ -55,7 +56,7 @@ state key = do
   pure $ key controls
 
 
--- HANDLE KEYBOARD STUFF -- 
+-- HANDLE KEYBOARD STUFF --
 
 keyboardHandle :: System' ()
 keyboardHandle = do
@@ -67,7 +68,7 @@ keyboardHandle = do
     handleAction action ety controls
  where
   handleAction = \case
-    Stand -> handleStand 
+    Stand -> handleStand
     Walk  -> handleWalk
     Jump  -> handleJump
 
@@ -83,7 +84,6 @@ handleStand ety = movement
       | downKey controls = ety $>>
           \(OnOneWayPlatform onOneWayPlatform, Position pos) ->
           when onOneWayPlatform $ do
-            --Utils.consoleLog "whoop!"
             Utils.setPos ety $ Position $
               Utils.modY (subtract Cons.oneWayPlatformThreshold) pos
             ety $~ \(CollisionFlags coll) -> CollisionFlags $ clearBit coll 10
@@ -93,23 +93,23 @@ handleStand ety = movement
 handleWalk :: Entity -> ControlInput -> System' ()
 handleWalk ety = movement
   where
-    movement controls
-      | upKey controls =
-          Action.jumpAction ety
-      | rightKey controls == leftKey controls =
-          ety $= Stand
-      | downKey controls = ety $>>
-          \(OnOneWayPlatform onOneWayPlatform, Position pos) ->
+    movement controls = do
+      if
+        | upKey controls ->
+            Action.jumpAction ety
+        | rightKey controls == leftKey controls ->
+            ety $= Stand
+        | otherwise -> do
+            DT dT <- get global
+            ety $>> \(Velocity vel, WalkAccel wlkacc) -> do
+              let sign = if rightKey controls then 1 else -1
+              ety $= Velocity (vel + sign *^ V2 (wlkacc * dT) 0)
+      when (downKey controls) $
+        ety $>> \(OnOneWayPlatform onOneWayPlatform, Position pos) ->
           when onOneWayPlatform $ do
-            --Utils.consoleLog "whoosh!"
             Utils.setPos ety $ Position $
               Utils.modY (subtract Cons.oneWayPlatformThreshold) pos
             ety $= Jump
-      | otherwise = do
-          DT dT <- get global
-          ety $>> \(Velocity vel, WalkAccel wlkacc) -> do
-            let sign = if rightKey controls then 1 else -1
-            ety $= Velocity (vel + sign *^ V2 (wlkacc * dT) 0)
 
 
 handleJump :: Entity -> ControlInput -> System' ()
@@ -117,7 +117,7 @@ handleJump ety = movement
   where
     movement controls = do
       DT dT <- get global
-      when (leftKey controls /= rightKey controls) $ do
+      when (leftKey controls /= rightKey controls) $
         ety $>> \(Velocity vel, JumpStrafe jmpstrf) -> do
           let sign = if rightKey controls then 1 else -1
           ety $= Velocity (vel + V2 (sign * jmpstrf * dT) 0)
@@ -125,6 +125,6 @@ handleJump ety = movement
         unless (upKey controls || Utils.getY vel <= 0) $
           Action.correctYVel ety Cons.minJumpSpeed (-800)
       when (downKey controls) $ do
-        ety $~ \(Velocity vel) -> 
+        ety $= FastFalling True
+        ety $~ \(Velocity vel) ->
           Velocity $ vel + V2 0 (Cons.gravity * (dT * 2))
-

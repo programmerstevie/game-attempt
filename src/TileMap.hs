@@ -11,7 +11,6 @@ import qualified Renderer
 import Apecs
 import Linear
 import qualified Data.Array as Array
-import qualified Data.HashMap.Strict as HM
 import Control.Monad
 
 
@@ -58,17 +57,16 @@ initMap = do
   , ents_M = []
   }
 
+
 loadMap :: MapTiles -> System' ()
 loadMap arr = do
   tileMap :: TMap <- get global
   global $= tileMap{ map_M = arr }
-  
+
+
 drawMap :: System' ()
 drawMap = do
-  Textures texMap <- get global
-  let defaultTex = texMap HM.! "assets/DEFAULT.png"
-      bkgr =
-        HM.lookupDefault defaultTex "assets/Background2048x1536.png" texMap
+  bkgr <- TextureManager.getTexture "assets/Background2048x1536.png"
   Renderer.setCamViewPort
   TextureManager.draw bkgr Nothing Nothing Cons.noFlip
   TMap{ destRect_M = destR
@@ -76,13 +74,12 @@ drawMap = do
       } <- get global
   --let (_, V2 mapH mapW) = Array.bounds mapTiles
   forM_ (Array.assocs mapTiles) $ \(coords, tile) -> do
-    destR' <- Utils.setRectPos destR <$> Camera.mapToSdlCoords mapTiles coords
-    let
-      path = case tile of
-                1 -> "assets/grass.png"
-                2 -> "assets/dirt.png"
-                3 -> "assets/oneWay.png"
-                _ -> ""
-    when (tile > 0) $
-      TextureManager.draw 
-        (HM.lookupDefault defaultTex path texMap) Nothing destR' Cons.noFlip
+    destR' <- Camera.scaleRecToCamera =<< 
+      Utils.setRectPos destR <$> Camera.mapToSdlCoords mapTiles coords
+    let path = case tile of
+          1 -> "assets/grass.png"
+          2 -> "assets/dirt.png"
+          3 -> "assets/oneWay.png"
+          _ -> ""
+    tileTex <- TextureManager.getTexture path
+    when (tile /= 0) $ TextureManager.draw tileTex Nothing destR' Cons.noFlip

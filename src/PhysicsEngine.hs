@@ -33,8 +33,8 @@ update = do
 
 updateAABB :: Entity -> System' ()
 updateAABB ety = do
-  ety $~~ \(Position pos, aabb@AABB{ offset = ofst, scale = scl }) ->
-    aabb{ center = pos + (ofst ^^* scl) }
+  ety $~~ \(Position pos, aabb@AABB{ offset_aabb = ofst, scale_aabb = scl }) ->
+    aabb{ center_aabb = pos + (ofst ^^* scl) }
 
 
 updateOld :: System' ()
@@ -52,8 +52,8 @@ updateOld = cmap $
 updateTileCollisions :: Entity -> System' ()
 updateTileCollisions ety = do
   aabb_ :: AABB <- get ety
-  let hs = halfSize aabb_ ^^* scale aabb_
-      ofst = offset aabb_ ^^* scale aabb_
+  let hs = halfSize_aabb aabb_ ^^* scale_aabb aabb_
+      ofst = offset_aabb aabb_ ^^* scale_aabb aabb_
   mapTiles <- map_M <$> get global
 
   -- when to move entity to the right (collides with left wall)
