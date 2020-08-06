@@ -6,7 +6,6 @@ import qualified Constants as Cons
 import qualified TextureManager
 import ECS.Base
 import qualified Data.HashMap.Strict as HM
-import qualified ECS.SpriteComponent
 
 
 import Apecs
@@ -15,18 +14,17 @@ import Linear
 
 initPlayer :: System' ()
 initPlayer = do
-  TextureManager.loadAnimationMap "assets\\animations\\playerAnimations.json"
+  TextureManager.loadAnimationMap "assets\\animations\\ManAnimations.json"
   animationMap <- unAnimationMap <$> get global
   Time time <- get global
   player <- newEntity
-              ( Player
+              ( (Player, EntityName "player")
               , Stand
               , FaceRight
               , initPhysics
+              , (animationMap HM.! "player.idle") { time0_A = time }
               , Active True
-              , (animationMap HM.! "player.idle") {time0_A = time}
               )
-  set player =<< ECS.SpriteComponent.init "assets\\animations\\Man.png" 48 48
   player $= ( WalkSpeed 13
             , WalkAccel 60
             , JumpSpeed Cons.playerJumpSpeed
@@ -39,4 +37,3 @@ initPlayer = do
                   , offset_aabb   = V2 (1/2) (7/16)
                   , scale_aabb    = V2 1 1
                   }
-  player $~ \(sprite :: Sprite) -> sprite{ flip_S = Cons.flipX }

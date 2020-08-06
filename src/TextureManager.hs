@@ -8,14 +8,12 @@ import ECS.Base
 import Foreign.C.Types (CInt)
 import Apecs
 import Control.Monad (unless)
-import Data.Foldable
 import Data.Aeson
 import Data.Maybe
 import Linear
 import qualified Data.HashMap.Strict as HM
 import qualified SDL
 import qualified SDL.Image as IMG
-
 
 
 loadAnimationMap :: FilePath -> System' ()
@@ -28,8 +26,9 @@ loadAnimationMap fp = do
 
 
 getTexturePure :: FilePath -> HM.HashMap FilePath SDL.Texture -> SDL.Texture
-getTexturePure path texMap = 
+getTexturePure path texMap =
   HM.lookupDefault (texMap HM.! "assets/DEFAULT.png") path texMap
+
 
 getTexture :: FilePath -> System' SDL.Texture
 getTexture path = getTexturePure path . unTextures <$> get global
@@ -47,8 +46,8 @@ loadTexture path = do
   (HM.! path) . unTextures <$> get global
 
 
-loadTextures :: [FilePath] -> System' ()
-loadTextures = traverse_ loadTexture
+loadTextures :: [FilePath] -> System' [SDL.Texture]
+loadTextures = traverse loadTexture
 
 
 draw :: SDL.Texture

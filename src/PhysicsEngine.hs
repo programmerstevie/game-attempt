@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE MultiWayIf          #-}
 {- HLINT ignore "Redundant do" -}
 module PhysicsEngine where
 

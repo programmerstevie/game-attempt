@@ -27,15 +27,15 @@ makeWorld "World" [ ''Running
                   , ''Textures
                   , ''AnimationMap
 
+                  , ''EntityName
                   , ''Sprite
                   , ''Animation
                   , ''Active
                   , ''Action
                   , ''Facing
-
-                  , ''Player
                   , ''FastFalling
 
+                  , ''Player
                   , ''Dinosaur
 
 

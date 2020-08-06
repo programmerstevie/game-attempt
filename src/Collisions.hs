@@ -8,7 +8,7 @@ import qualified Constants
 
 import qualified Data.Array as Array
 import Data.Foldable
-import Foreign.C.Types (CFloat)
+import Foreign.C.Types (CFloat, CInt)
 import Linear
 
 
@@ -270,7 +270,7 @@ groundCollision map_m
                   + Utils.getY oldPos - Utils.getY pos ) )
 
 
-isOneWayPlatform :: MapTiles -> V2 ICInt -> Bool
+isOneWayPlatform :: MapTiles -> V2 CInt -> Bool
 isOneWayPlatform map_m coords
   | Array.inRange (Array.bounds map_m) coords =
       case map_m Array.! coords of
@@ -279,7 +279,7 @@ isOneWayPlatform map_m coords
   | otherwise = False
 
 
-isObstacle :: MapTiles -> V2 ICInt -> Bool
+isObstacle :: MapTiles -> V2 CInt -> Bool
 isObstacle map_m coords
   | Array.inRange (Array.bounds map_m) coords =
       case map_m Array.! coords of

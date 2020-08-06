@@ -7,6 +7,13 @@ import Apecs.Core (Component, Storage)
 import Apecs.Stores (Map)
 
 
+newtype EntityName = EntityName { unEntityName :: String }
+
+instance Component EntityName where
+  type Storage EntityName = Map EntityName
+
+
+
 newtype Active = Active { unActive :: Bool }
 
 instance Component Active where

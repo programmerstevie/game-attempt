@@ -35,12 +35,15 @@ library:
     - vector
     - mtl
     - aeson
+    - hashable
+    - scientific
 
 executables:
   miniGame-exe:
     main: Main.hs
     source-dirs: app
     ghc-options:
+    - -fno-warn-orphans
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N

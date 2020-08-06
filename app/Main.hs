@@ -24,7 +24,7 @@ main :: IO ()
 main = do
   world <- initWorld
   runWith world $
-    Game.init "GameEngine"
+    Game.init "THE BEST GAME EVER"
               (V2 SDL.Raw.SDL_WINDOWPOS_CENTERED 
                   SDL.Raw.SDL_WINDOWPOS_CENTERED)
               (V2 640 360)

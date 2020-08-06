@@ -19,8 +19,11 @@ import Foreign.C.Types (CFloat(..), CInt(..))
 import Linear
 import qualified Data.Array as Array
 import qualified Data.HashMap.Strict as HM
+import qualified Data.Hashable as HASH
+import qualified Data.Scientific as SCI
 import qualified SDL
 import qualified SDL.Internal.Types as SDL_T
+import qualified Data.Vector as V
 
 
 
@@ -78,30 +81,72 @@ instance Component CWindow where
   type Storage CWindow = Global CWindow
 
 
-
-type MapTiles = Array.Array (V2 ICInt) CInt
+type MapTiles = Array.Array (V2 CInt) CInt
 
 data TMap = TMap {
-  map_M            :: MapTiles
-, srcRect_M        :: Maybe (SDL.Rectangle CInt)
-, destRect_M       :: Maybe (SDL.Rectangle CInt)
-, playerStartPos_M :: V2 CFloat
-, exitPos_M        :: V2 CFloat
-, ents_M           :: [(String, V2 CFloat)]
+  name_M            :: String
+, backgroundPath_M  :: FilePath
+, tileTexturePath_M :: FilePath
+, tileTextureMap_M  :: HM.HashMap CInt (Maybe (SDL.Rectangle CInt))
+, map_M             :: MapTiles
+, destRect_M        :: Maybe (SDL.Rectangle CInt)
+, playerStartPos_M  :: V2 CFloat
+, exitPos_M         :: V2 CFloat
+, ents_M            :: [(String, [V2 CFloat])]
 }
 
 instance Semigroup TMap where
   (<>) = mappend
 instance Monoid TMap where
-  mempty = TMap { map_M            = Array.array (1, 0) []
-                , srcRect_M        = Nothing
-                , destRect_M       = Nothing
-                , playerStartPos_M = 0 
-                , exitPos_M        = 0
-                , ents_M           = []
+  mempty = TMap { name_M            = ""
+                , backgroundPath_M  = ""
+                , tileTexturePath_M = ""
+                , tileTextureMap_M  = HM.empty
+                , map_M             = Array.array (1, 0) []
+                , destRect_M        = Nothing
+                , playerStartPos_M  = 0 
+                , exitPos_M         = 0
+                , ents_M            = []
                 }
 instance Component TMap where
   type Storage TMap = Global TMap
+instance FromJSON TMap where
+  parseJSON = withObject "TileMap" $ \v -> do
+    name       :: String   <- v .: "name"
+    bckgr_path :: FilePath <- v .: "bckgr_path"
+    tile_path  :: FilePath <- v .: "tile_path"
+
+    tile_types :: [Text]   <- v .: "types"
+    tiles      :: Object   <- v .: "tiles"
+    rect_map <- fmap HM.fromList <$> forM tile_types $ \tileName -> do
+      tile :: Object <- tiles .: tileName
+
+      tile_id        :: CInt   <- tile .: "id"
+      src_rect  :: Maybe (SDL.Rectangle CInt) 
+        <- fromCorners <$> tile .: "rect"
+      pure (tile_id, src_rect)
+    map_size   :: V2 CInt <- v .: "map_size"
+    tile_map_list :: [[CInt]] <- v .: "tile_map"
+    player_start_position :: V2 CFloat <- v .: "player_start_position"
+    exit_position :: V2 CFloat <- v .: "exit_position"
+
+    entity_list :: [Text] <- v .: "entity_list"
+    entities :: Object <- v .: "entities"
+    entities_formatted <- forM entity_list $ \entName -> do
+      entPos :: [V2 CFloat] <- entities .: entName
+      return (unpack entName, entPos)
+
+    pure $ TMap {
+      name_M = name
+    , backgroundPath_M = bckgr_path
+    , tileTexturePath_M = tile_path
+    , tileTextureMap_M  = rect_map
+    , map_M = Array.listArray (0, map_size - V2 1 1) . concat $ tile_map_list
+    , destRect_M = Just $ SDL.Rectangle (SDL.P (V2 0 0)) $ V2 32 32
+    , playerStartPos_M = player_start_position
+    , exitPos_M = exit_position
+    , ents_M = entities_formatted
+    }
 
 
 
@@ -170,11 +215,11 @@ instance FromJSON AnimationMap where
     name       :: String <- v .: "name"
     scale      :: CFloat <- CFloat <$> v .: "scale"
     types      :: [Text] <- v .: "types"
-    def        :: String <- v.: "default"
+    def        :: String <- v .: "default"
     animations :: Object <- v .: "animations"
     animMap <- fmap HM.fromList . forM types $ \t -> do
-      animation  :: Object <- animations .: t
-      dT         :: CFloat <- CFloat <$> animation .: "dT"
+      animation  :: Object   <- animations .: t
+      dT         :: CFloat   <- CFloat <$> animation .: "dT"
       file_path  :: FilePath <- animation .: "file_path"
 
       src_rects  :: [Maybe (SDL.Rectangle CInt)]
@@ -196,24 +241,23 @@ instance FromJSON AnimationMap where
              )
     return . AnimationMap $ 
       case HM.lookup (name ++ '.' : def) animMap of
-        Just anim -> HM.insert (name ++ '.' : "default") anim animMap
+        Just anim -> HM.insert (name ++ ".default") anim animMap
         Nothing   -> error "NO DEFAULT ANIMATION"
 
-    where
-      fromCorners :: ((Int, Int), (Int, Int)) -> Maybe (SDL.Rectangle CInt)
-      fromCorners ((x0, y0), (x1, y1)) = 
-        let x = fromIntegral x0
-            y = fromIntegral y0
-            w = fromIntegral $ x1 - x0
-            h = fromIntegral $ y1 - y0
-        in Just . SDL.Rectangle (SDL.P $ V2 x y) $ V2 w h
+fromCorners :: ((Int, Int), (Int, Int)) -> Maybe (SDL.Rectangle CInt)
+fromCorners ((x0, y0), (x1, y1)) = 
+  let x = fromIntegral x0
+      y = fromIntegral y0
+      w = fromIntegral $ x1 - x0
+      h = fromIntegral $ y1 - y0
+  in Just . SDL.Rectangle (SDL.P $ V2 x y) $ V2 w h
 
-      modRectSize :: (V2 CInt -> V2 CInt)
-                -> Maybe (SDL.Rectangle CInt)
-                -> Maybe (SDL.Rectangle CInt)
-      modRectSize fun (Just (SDL.Rectangle p size)) = 
-        Just $ SDL.Rectangle p $ fun size
-      modRectSize _ Nothing = Nothing
+modRectSize :: (V2 CInt -> V2 CInt)
+          -> Maybe (SDL.Rectangle CInt)
+          -> Maybe (SDL.Rectangle CInt)
+modRectSize fun (Just (SDL.Rectangle p size)) = 
+  Just $ SDL.Rectangle p $ fun size
+modRectSize _ Nothing = Nothing
 
 
 
@@ -227,11 +271,32 @@ instance Component DefaultTexture where
   type Storage DefaultTexture = Global DefaultTexture
 
 
-newtype ICInt = ICInt { unICInt :: CInt }
-  deriving (Real, Enum, Ord, Eq, Integral, Num)
+--newtype ICInt = ICInt { unICInt :: CInt }
+--  deriving (Real, Enum, Ord, Eq, Integral, Num)
 
-instance Ix ICInt where
+instance HASH.Hashable CInt where
+  hashWithSalt i (CInt v) = HASH.hashWithSalt i v 
+
+instance Ix CInt where
   range (m,n) = [m..n]
   index b@(m,_n) i | inRange b i = fromIntegral $ i - m
                    | otherwise   = error "CInt index Error"
   inRange (m, n) i =  (m <= i) && (i <= n)
+
+instance FromJSON CFloat where
+  parseJSON = withScientific "CFloat" $ pure . SCI.toRealFloat
+
+instance FromJSON CInt where
+  parseJSON = withScientific "CInt" $ \n ->
+    case SCI.toBoundedInteger n of
+      Just v  -> pure v
+      Nothing -> error "nonInteger for CInt from JSON!"
+
+instance (FromJSON a) => FromJSON (V2 a) where
+  parseJSON = withArray "V2" $ \v ->
+    if V.length v == 2
+    then do
+      x <- parseJSON (v V.! 0)
+      y <- parseJSON (v V.! 1)
+      pure $ V2 x y
+    else error "array of length 2 trying to be converted to V2"

@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE MultiWayIf          #-}
 {- HLINT ignore "Redundant do" -}
 module ECS.Manager where
 
@@ -27,20 +27,34 @@ import Linear
 updateAnimations :: System' ()
 updateAnimations = do
   Time t <- get global
-  cmapM $ \(spr :: Sprite, ani :: Animation) -> do
+  cmapM $ \(ani :: Animation, ety :: Entity) -> do
     let frame = floor ((t - time0_A ani) / delta_A ani) `rem` length_A ani
-    return $ spr { filePath_S = filePath_A ani
-                 , srcRect_S  = srcRects_A ani !! frame
-                 , destRect_S = destRects_A ani !! frame
-                 }
+    hasSprite <- exists ety (Proxy :: Proxy Sprite)
+    flipped <- if hasSprite then flip_S <$> get ety else pure Cons.noFlip
+    return $ Sprite{ filePath_S = filePath_A ani
+                   , srcRect_S  = srcRects_A ani !! frame
+                   , destRect_S = destRects_A ani !! frame
+                   , flip_S     = flipped
+                   }
 
 
 runAnimation :: Entity -> String -> System' ()
-runAnimation ety name = ety $>> \(animation :: Animation) ->
-  unless (name == name_A animation) $ do
-    Time time <- get global
-    animationMap <- unAnimationMap <$> get global
-    ety $= (animationMap HM.! name){time0_A = time}
+runAnimation ety animName = ety $>> \(EntityName entName) -> do
+  animationMap <- unAnimationMap <$> get global
+  let name = entName ++ '.' : animName
+      fixedAnimation =
+        animationMap HM.!
+          if HM.member name animationMap
+          then name
+          else entName ++ ".default"
+  alreadyPlaying <- exists ety (Proxy :: Proxy Animation) >>= 
+    \hasAnimation ->
+    if hasAnimation
+    then (name_A fixedAnimation ==) . name_A <$> get ety
+    else pure False
+  unless alreadyPlaying $ do
+    Time time    <- get global
+    ety $= fixedAnimation{ time0_A = time }
 
 
 updateSprites :: System' ()
@@ -70,11 +84,11 @@ actionUpdate =
     case action of
       Stand -> do
         -- Utils.consoleLog "Standing"
-        runAnimation ety "player.idle"
+        runAnimation ety "idle"
         Action.correctXVel ety 0 Cons.friction
       Walk -> do
         -- Utils.consoleLog "Walking"
-        runAnimation ety "player.walk"
+        runAnimation ety "walk"
         ety $~ \(Velocity (V2 vx vy)) -> 
           Velocity (V2 (signum vx * min (abs vx) wlkspd) vy)
         ety $>> \(Velocity (V2 vx _)) -> do
@@ -86,8 +100,8 @@ actionUpdate =
         -- Utils.consoleLog "Jump"
         ety $>> \(Velocity (V2 _ vy)) ->
           if vy >= 0
-          then runAnimation ety "player.jump_up"
-          else runAnimation ety "player.jump_down"
+          then runAnimation ety "jump_up"
+          else runAnimation ety "jump_down"
         ety $~ \(Velocity (V2 vx vy)) ->
           Velocity $ V2 (signum vx * min (abs vx) wlkspd) (max termvel vy)
         when onGround $ do

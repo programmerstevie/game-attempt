@@ -13,6 +13,7 @@ import Apecs
 import Control.Applicative
 import Linear
 import qualified SDL
+import qualified Data.Array as Array
 import Foreign.C.Types (CFloat, CInt)
 
 
@@ -46,7 +47,7 @@ worldToSdlCoords coords = do
   return $ fmap floor $ Utils.modY (vpY -) $ camTrans ^^* scaledViewPort
 
 
-mapToSdlCoords :: MapTiles -> V2 ICInt -> System' (V2 CInt)
+mapToSdlCoords :: Array.Array (V2 CInt) CInt -> V2 CInt -> System' (V2 CInt)
 mapToSdlCoords mapTiles =
   worldToSdlCoords . Utils.modY (+1) . Utils.mapToWorldCoords mapTiles
 

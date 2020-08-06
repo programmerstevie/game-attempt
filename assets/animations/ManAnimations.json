@@ -6,7 +6,7 @@
   "animations": {
     "walk": {
       "dT": 0.1,
-      "file_path": "assets\\animations\\Man_walk.png",
+      "file_path": "assets\\animations\\Man\\Man_walk.png",
       "src_coords": [ [[0  , 0], [48 , 48]]
                     , [[48 , 0], [96 , 48]]
                     , [[96 , 0], [144, 48]]
@@ -17,7 +17,7 @@
     },
     "idle": {
       "dT": 0.1,
-      "file_path": "assets\\animations\\Man_idle.png",
+      "file_path": "assets\\animations\\Man\\Man_idle.png",
       "src_coords": [ [[0  , 0], [48 , 48]]
                     , [[48 , 0], [96 , 48]]
                     , [[96 , 0], [144, 48]]
@@ -26,13 +26,13 @@
     },
     "jump_up": {
       "dT": 1,
-      "file_path": "assets\\animations\\Man_walk.png",
+      "file_path": "assets\\animations\\Man\\Man_walk.png",
       "src_coords": [ [[192, 0], [240, 48]]
                     ]
     },
     "jump_down": {
       "dT": 1,
-      "file_path": "assets\\animations\\Man_walk.png",
+      "file_path": "assets\\animations\\Man\\Man_walk.png",
       "src_coords": [ [[144, 0], [192, 48]]
                     ]
     }

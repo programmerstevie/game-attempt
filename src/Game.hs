@@ -48,7 +48,7 @@ init title pos size fullscr = do
   global $= Camera 0 (V2 25 20)
 
   global $= (Running True, Time 0)
-  set global =<< TileMap.initMap
+  TileMap.loadMap "assets\\tiles\\level_0.json"
 
   TextureManager.loadTextures [ "assets/DEFAULT.png"
                               , "assets/Background2048x1536.png"
