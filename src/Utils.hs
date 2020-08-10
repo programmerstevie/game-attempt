@@ -186,3 +186,4 @@ pixRound x
     where bigX = x / Cons.onePix
           wholeX = floor bigX :: CInt
           ending = bigX - fromIntegral wholeX
+

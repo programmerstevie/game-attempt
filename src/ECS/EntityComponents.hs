@@ -4,13 +4,13 @@ module ECS.EntityComponents where
 import ECS.PhysicsComponents
 
 import Apecs.Core (Component, Storage)
-import Apecs.Stores (Map)
+import Apecs.Stores (Map, Unique)
 
 
-newtype EntityName = EntityName { unEntityName :: String }
+newtype AnimationName = AnimationName { unEntityName :: String }
 
-instance Component EntityName where
-  type Storage EntityName = Map EntityName
+instance Component AnimationName where
+  type Storage AnimationName = Map AnimationName
 
 
 
@@ -32,6 +32,20 @@ data Facing = FaceLeft | FaceRight
 
 instance Component Facing where
   type Storage Facing = Map Facing
+
+
+
+data Player = Player
+
+instance Component Player where
+  type Storage Player = Unique Player
+
+
+
+newtype FastFalling = FastFalling Bool
+
+instance Component FastFalling where
+  type Storage FastFalling = Unique FastFalling
 
 
 

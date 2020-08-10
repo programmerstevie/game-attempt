@@ -11,6 +11,7 @@ module ECS.Base (
 ) where
 
 import ECS.Components
+import ECS.OrphanInstances()
 
 import Apecs
 
@@ -27,7 +28,7 @@ makeWorld "World" [ ''Running
                   , ''Textures
                   , ''AnimationMap
 
-                  , ''EntityName
+                  , ''AnimationName
                   , ''Sprite
                   , ''Animation
                   , ''Active
@@ -65,7 +66,8 @@ type System' a = System World a
 
 type EntityComponents = ( Player
                         , Dinosaur
-                        , ( PhysicsComponents
+                        , PhysicsComponents
+                        , ( FastFalling
                           , Action
                           , Facing
                           , Sprite

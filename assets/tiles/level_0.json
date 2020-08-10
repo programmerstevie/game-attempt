@@ -47,8 +47,8 @@
     ],
   "player_start_position": [0, 7],
   "exit_position": [0, 0],
-  "entity_list": ["DINOSAUR"],
+  "entity_list": ["Dino"],
   "entities": {
-    "DINOSAUR": [[5, 1]]
+    "Dino": [[4, 100]]
   }
 }

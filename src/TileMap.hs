@@ -1,16 +1,19 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE MultiWayIf #-}
 module TileMap where
 
 import ECS.Base
 import qualified TextureManager
 import qualified Constants as Cons
 import qualified Data.HashMap.Strict as HM
+import qualified Init
 import qualified Utils
 import qualified Camera
 import qualified Renderer
 
 import Apecs
 import Data.Aeson
+
 import Data.Maybe (fromMaybe)
 import qualified Data.Array as Array
 import Control.Monad
@@ -24,6 +27,15 @@ loadMap fp = do
                               , tileTexturePath_M tileMap 
                               ]
   global $= tileMap
+  Init.initPlayer $ playerStartPos_M tileMap
+  forM_ (ents_M tileMap) $ \(name, ps) ->
+    forM_ ps $ \position ->
+      if | name == "Dino" -> Init.initDino position
+         | otherwise      -> pure ()
+  
+  -- to make the AABB rather than the sprite at the position we set on the map
+  cmap $ \(Position pos, AABB{ offset_aabb = os, halfSize_aabb = hs}) 
+    -> Position (pos - os + hs)
 
 
 drawMap :: System' ()
@@ -43,4 +55,5 @@ drawMap = do
     let srcRect = texMap HM.! tile
     destRect <- Camera.scaleRecToCamera =<< 
       Utils.setRectPos destRectRaw <$> Camera.mapToSdlCoords mapTiles coords
-    TextureManager.draw tileTex srcRect destRect Cons.noFlip
+    when (tile > 0) $
+      TextureManager.draw tileTex srcRect destRect Cons.noFlip

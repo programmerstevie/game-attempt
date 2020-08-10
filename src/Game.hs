@@ -10,8 +10,6 @@ import qualified TileMap
 import qualified KeyboardController
 import qualified EventHandler
 import qualified PhysicsEngine
-import qualified TextureManager
-import qualified Init
 import qualified Renderer
 import qualified Camera
 
@@ -49,11 +47,7 @@ init title pos size fullscr = do
 
   global $= (Running True, Time 0)
   TileMap.loadMap "assets\\tiles\\level_0.json"
-
-  TextureManager.loadTextures [ "assets/DEFAULT.png"
-                              , "assets/Background2048x1536.png"
-                              ]
-  Init.initPlayer
+  pure ()
 
 
 clean :: System' ()

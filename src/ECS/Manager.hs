@@ -39,7 +39,7 @@ updateAnimations = do
 
 
 runAnimation :: Entity -> String -> System' ()
-runAnimation ety animName = ety $>> \(EntityName entName) -> do
+runAnimation ety animName = ety $>> \(AnimationName entName) -> do
   animationMap <- unAnimationMap <$> get global
   let name = entName ++ '.' : animName
       fixedAnimation =

@@ -1,5 +1,5 @@
 {
-  "name": "player",
+  "name": "man",
   "scale": 1,
   "types": ["walk", "idle", "jump_up", "jump_down"],
   "default": "idle",

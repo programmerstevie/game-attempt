@@ -1,0 +1,36 @@
+{
+  "name": "dino",
+  "scale": 2,
+  "types": ["walk", "idle", "death"],
+  "default": "idle",
+  "animations": {
+    "walk": {
+      "dT": 0.1,
+      "file_path": "assets\\animations\\Dino\\DinosaurBlue.png",
+      "src_coords": [ [[96 , 0], [120, 24]]
+                    , [[120, 0], [144, 24]]
+                    , [[144, 0], [168, 24]]
+                    , [[168, 0], [192, 24]]
+                    , [[192, 0], [216, 24]]
+                    , [[216, 0], [240, 24]]
+                    ]
+    },
+    "idle": {
+      "dT": 0.1,
+      "file_path": "assets\\animations\\Dino\\DinosaurBlue.png",
+      "src_coords": [ [[0 , 0], [24, 24]]
+                    , [[24, 0], [48, 24]]
+                    , [[48, 0], [72, 24]]
+                    , [[72, 0], [96, 24]]
+                    ]
+    },
+    "death": {
+      "dT": 1,
+      "file_path": "assets\\animations\\Dino\\DinosaurBlue.png",
+      "src_coords": [ [[336, 0], [360, 24]]
+                    , [[360, 0], [384, 24]]
+                    , [[408, 0], [432, 24]]
+                    ]
+    }
+  }
+}
