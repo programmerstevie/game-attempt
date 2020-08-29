@@ -13,7 +13,7 @@ import Apecs.Stores (Global)
 import Linear
 import Data.Aeson
 import Foreign.C.Types (CInt(..))
-import Control.Monad (forM)
+import Data.Traversable (for)
 import qualified Data.HashMap.Strict as HM
 import qualified ECS.Utils
 import qualified SDL
@@ -60,7 +60,7 @@ instance FromJSON TMap where
 
     tile_types :: [Text]   <- v .: "types"
     tiles      :: Object   <- v .: "tiles"
-    rect_map <- fmap HM.fromList <$> forM tile_types $ \tileName -> do
+    rect_map <- fmap HM.fromList <$> for tile_types $ \tileName -> do
       tile      :: Object <- tiles .: tileName
 
       tile_id   :: CInt   <- tile .: "id"
@@ -74,9 +74,9 @@ instance FromJSON TMap where
 
     entity_list :: [Text] <- v .: "entity_list"
     entities :: Object <- v .: "entities"
-    entities_formatted <- forM entity_list $ \entName -> do
+    entities_formatted <- for entity_list $ \entName -> do
       entPos :: [Position] <- map Position <$> entities .: entName
-      return (unpack entName, entPos)
+      pure (unpack entName, entPos)
 
     pure $ TMap {
       name_M = name
@@ -89,3 +89,22 @@ instance FromJSON TMap where
     , exitPos_M = exit_position
     , ents_M = entities_formatted
     }
+
+
+isOneWayPlatform :: MapTiles -> V2 CInt -> Bool
+isOneWayPlatform map_m coords
+  | Array.inRange (Array.bounds map_m) coords =
+      case map_m Array.! coords of
+        3 -> True
+        _ -> False
+  | otherwise = False
+
+
+isObstacle :: MapTiles -> V2 CInt -> Bool
+isObstacle map_m coords
+  | Array.inRange (Array.bounds map_m) coords =
+      case map_m Array.! coords of
+        1 -> True
+        2 -> True
+        _ -> False
+  | otherwise = True

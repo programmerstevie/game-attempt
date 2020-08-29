@@ -32,6 +32,7 @@ makeWorld "World" [ ''Running
                   , ''Sprite
                   , ''Animation
                   , ''Active
+                  , ''Wait
                   , ''Action
                   , ''Facing
                   , ''FastFalling

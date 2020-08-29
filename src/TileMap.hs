@@ -16,7 +16,8 @@ import Data.Aeson
 
 import Data.Maybe (fromMaybe)
 import qualified Data.Array as Array
-import Control.Monad
+import Control.Monad (when)
+import Data.Foldable (for_)
 
 
 loadMap :: FilePath -> System' ()
@@ -28,8 +29,8 @@ loadMap fp = do
                               ]
   global $= tileMap
   Init.initPlayer $ playerStartPos_M tileMap
-  forM_ (ents_M tileMap) $ \(name, ps) ->
-    forM_ ps $ \position ->
+  for_ (ents_M tileMap) $ \(name, ps) ->
+    for_ ps $ \position ->
       if | name == "Dino" -> Init.initDino position
          | otherwise      -> pure ()
   
@@ -51,7 +52,7 @@ drawMap = do
   tileTex <- TextureManager.getTexture texPath
 
   TextureManager.draw bkgr Nothing Nothing Cons.noFlip
-  forM_ (Array.assocs mapTiles) $ \(coords, tile) -> do
+  for_ (Array.assocs mapTiles) $ \(coords, tile) -> do
     let srcRect = texMap HM.! tile
     destRect <- Camera.scaleRecToCamera =<< 
       Utils.setRectPos destRectRaw <$> Camera.mapToSdlCoords mapTiles coords

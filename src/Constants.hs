@@ -2,7 +2,14 @@ module Constants where
 
 
 import Foreign.C.Types (CFloat)
+import Data.Word (Word32)
 import Linear
+
+
+
+fps, frameDelay :: Word32
+fps = 60
+frameDelay = 1000 `div` fps
 
 
 minJumpSpeed :: CFloat

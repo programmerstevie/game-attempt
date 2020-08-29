@@ -5,6 +5,7 @@ import ECS.PhysicsComponents
 
 import Apecs.Core (Component, Storage)
 import Apecs.Stores (Map, Unique)
+import Foreign.C.Types (CFloat)
 
 
 newtype AnimationName = AnimationName { unEntityName :: String }
@@ -22,6 +23,7 @@ instance Component Active where
 
 
 data Action = Stand | Walk | Jump
+  deriving Show
 
 instance Component Action where
   type Storage Action = Map Action
@@ -35,13 +37,6 @@ instance Component Facing where
 
 
 
-data Player = Player
-
-instance Component Player where
-  type Storage Player = Unique Player
-
-
-
 newtype FastFalling = FastFalling Bool
 
 instance Component FastFalling where
@@ -49,10 +44,25 @@ instance Component FastFalling where
 
 
 
+newtype Wait = Wait CFloat
+
+instance Component Wait where
+  type Storage Wait = Map Wait
+
+
+
+data Player = Player
+
+instance Component Player where
+  type Storage Player = Unique Player
+
+
+
 data Dinosaur = Dinosaur
 
 instance Component Dinosaur where
   type Storage Dinosaur = Map Dinosaur
+
 
 
 type PhysicsComponents

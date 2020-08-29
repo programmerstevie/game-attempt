@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b3e1f85865e68503b41140bd67635792e553c75bf4618e2c5d309a0cb602992f
+-- hash: a0916da0bdef76220874230a7191963521fc6a953cb8d2a99908d053858212a0
 
 name:           miniGame
 version:        0.1.0.0
@@ -31,7 +31,10 @@ library
       Camera
       Collisions
       Constants
+      Controls
+      DinoBehavior
       ECS.AnimationComponents
+      ECS.AnimationManager
       ECS.Base
       ECS.Components
       ECS.EntityComponents
@@ -39,15 +42,16 @@ library
       ECS.Manager
       ECS.OrphanInstances
       ECS.PhysicsComponents
-      ECS.PlayerComponents
       ECS.SpriteComponent
       ECS.TileMapComponent
       ECS.Utils
+      EntityUtils
       EventHandler
       Game
       Init
       KeyboardController
       PhysicsEngine
+      Player
       Renderer
       TextureManager
       TileMap

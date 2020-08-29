@@ -1,7 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Game where
 
--- import qualified
 
 import ECS.Base
 import qualified Utils
@@ -12,14 +11,16 @@ import qualified EventHandler
 import qualified PhysicsEngine
 import qualified Renderer
 import qualified Camera
+import qualified ECS.AnimationManager
 
 
 import Apecs
 import qualified Data.HashMap.Strict as HM
 import qualified SDL
+import Control.Monad (when)
 import Linear
 import Data.Foldable
-import Foreign.C.Types (CInt)
+import Foreign.C.Types (CInt, CFloat)
 import Data.Text (Text)
 
 
@@ -32,8 +33,8 @@ init title pos size fullscr = do
     SDL.defaultWindow { SDL.windowPosition    = SDL.Absolute $ SDL.P pos
                       , SDL.windowInitialSize = size
                       , SDL.windowMode        = if fullscr
-                                                  then SDL.Fullscreen 
-                                                  else SDL.Windowed
+                                                then SDL.Fullscreen 
+                                                else SDL.Windowed
                       , SDL.windowResizable   = True
                       }
   global $= CWindow window
@@ -74,21 +75,27 @@ handleEvents :: System' ()
 handleEvents = do
   KeyboardController.updatePrevControls
   payload <- map SDL.eventPayload <$> SDL.pollEvents 
-  mapM_ EventHandler.handleEvent payload
+  traverse_ EventHandler.handleEvent payload
   KeyboardController.keyboardHandle
 
 
-update :: System' ()
-update = do
+update :: CFloat -> System' ()
+update maxDT = do
   Time t <- get global
   t' <- Utils.toSeconds <$> SDL.ticks
   let dT = t' - t
-  global $= (Time t', DT dT)
+  global $= (Time t', DT $ min dT maxDT)
+
+  cmapM_ $ \(Wait waitTime, ety :: Entity) -> 
+    when (waitTime <= t') $
+      destroy ety (Proxy :: Proxy Wait)
+
   ECS.Manager.refresh
+  ECS.Manager.npcUpdate
   ECS.Manager.actionUpdate
   PhysicsEngine.update
   Camera.updateCamera
-  ECS.Manager.updateSprites
+  ECS.AnimationManager.updateSprites
 
 
 draw :: System' ()
@@ -96,7 +103,7 @@ draw = do
   CRenderer renderer <- get global
   SDL.clear renderer
   TileMap.drawMap
-  ECS.Manager.draw
+  ECS.AnimationManager.draw
   
   SDL.rendererDrawColor renderer SDL.$= V4 0 0 0 255
   Renderer.setFullViewPort

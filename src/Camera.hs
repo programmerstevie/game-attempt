@@ -6,7 +6,7 @@ import ECS.Base
 import qualified Constants as Cons
 import qualified Utils
 import qualified Renderer
-import Utils ((^^*), (^^/))
+import Utils ((^^*), (^^/), ($~~))
 
 
 import Apecs
@@ -24,6 +24,8 @@ updateCamera = cmapM_ $ \(Player, aabb :: AABB) -> do
   camCtr <- (^^/ scaleCoords) . fmap fromIntegral <$> Renderer.getViewPortSize
   global $~ \(camera :: Camera) -> 
     camera{ gameCoords_C = center_aabb aabb - camCtr ^/ 2 }
+  global $~~ \(camera :: Camera, gameMap :: TMap) ->
+    clampCameraToMap (map_M gameMap) camera
   Renderer.setCamViewPort
 
 
@@ -44,10 +46,10 @@ worldToSdlCoords coords = do
   V2 _ vpY <- fmap fromIntegral <$> Renderer.getViewPortSize
   let camTrans = worldToCamera camera coords
   scaledViewPort <- coordsScale
-  return $ fmap floor $ Utils.modY (vpY -) $ camTrans ^^* scaledViewPort
+  pure $ fmap round $ Utils.modY (vpY -) $ camTrans ^^* scaledViewPort
 
 
-mapToSdlCoords :: Array.Array (V2 CInt) CInt -> V2 CInt -> System' (V2 CInt)
+mapToSdlCoords :: MapTiles -> V2 CInt -> System' (V2 CInt)
 mapToSdlCoords mapTiles =
   worldToSdlCoords . Utils.modY (+1) . Utils.mapToWorldCoords mapTiles
 
@@ -66,6 +68,18 @@ scaleRecToCamera Nothing = pure Nothing
 scaleRecToCamera (Just (SDL.Rectangle pos size)) = do
   size' <- scaleToCamera size
   pure . Just $ SDL.Rectangle pos size'
+
+
+clampCameraToMap :: MapTiles -> Camera -> Camera
+clampCameraToMap mapTiles cam@Camera{gameCoords_C = botLef, size_C = camSize} =
+  let mapSize = V2 1 1 + (Utils.swapV . snd . Array.bounds) mapTiles
+      topRig  = botLef + camSize
+      botLefBound = V2 0 0
+      topRigBound = fmap fromIntegral mapSize
+
+      botLefDelta = liftA2 max botLef botLefBound - botLef
+      topRigDelta = liftA2 min topRig topRigBound - topRig
+  in cam { gameCoords_C = botLef + botLefDelta + topRigDelta }
 
 
 {-

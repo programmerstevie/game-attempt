@@ -10,6 +10,7 @@ import ECS.Base
 import qualified Utils
 import Utils (($>>))
 import qualified Action
+import qualified EntityUtils
 import qualified Constants as Cons
 
 import Apecs
@@ -58,19 +59,26 @@ state key = do
 
 -- HANDLE KEYBOARD STUFF --
 
+
+
 keyboardHandle :: System' ()
-keyboardHandle = do
-  controls :: ControlInput <- get global
-  cmapM_ $ \( Player
-            , _ :: PhysicsComponents
-            , action :: Action
-            , ety :: Entity) ->
-    handleAction action ety controls
+keyboardHandle =
+  cmapM_ $ \(Player , ety :: Entity) -> get global >>= keyboardControl ety
+
+
+
+keyboardControl :: Entity -> ControlInput -> System' ()
+keyboardControl ety controls = do
+  actionControllable <- exists ety (Proxy :: Proxy Action)
+  when actionControllable $ do
+    action :: Action <- get ety
+    handleAction action ety controls 
  where
   handleAction = \case
     Stand -> handleStand
     Walk  -> handleWalk
     Jump  -> handleJump
+
 
 
 handleStand :: Entity -> ControlInput -> System' ()

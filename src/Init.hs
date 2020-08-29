@@ -6,6 +6,7 @@ import ECS.Base
 import qualified Constants as Cons
 import qualified TextureManager
 import qualified Utils
+import qualified PhysicsEngine
 
 
 
@@ -39,6 +40,7 @@ initPlayer position = do
                   , offset_aabb   = V2 (7 / 16) (7 / 16)
                   , scale_aabb    = V2 1 1
                   }
+  PhysicsEngine.updateAABB player
 
 initDino :: Position -> System' ()
 initDino position = do
@@ -54,7 +56,7 @@ initDino position = do
             , (animationMap HM.! "dino.idle") { time0_A = time }
             , initPhysics
             )
-  dinosaur $= ( WalkSpeed 13
+  dinosaur $= ( WalkSpeed 5
               , WalkAccel 60
               , TerminalVelocity (-40)
               , position
@@ -64,3 +66,4 @@ initDino position = do
                     , offset_aabb   = V2 (16 / 24) (16 / 24)
                     , scale_aabb    = V2 1 1
                     }
+  PhysicsEngine.updateAABB dinosaur

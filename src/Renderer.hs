@@ -37,7 +37,7 @@ getViewPort winSize cam =
         if winXtoY > camXtoY
         then (winY * cX / cY, winY, (winX - (winY * cX / cY)) / 2, 0)
         else (winX, winX * cY / cX, 0, (winY - (winX * cY / cX)) / 2)
-  in Just . fmap floor $ SDL.Rectangle (SDL.P $ V2 x y) $ V2 w h
+  in Just . fmap round $ SDL.Rectangle (SDL.P $ V2 x y) $ V2 w h
 
 
 getWindowSizeWorld :: System' (V2 CFloat)

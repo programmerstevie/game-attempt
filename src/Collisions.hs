@@ -5,10 +5,10 @@ import ECS.Base
 import qualified Utils
 import Utils ((^^*))
 import qualified Constants
+import qualified ECS.TileMapComponent as TileMap 
 
-import qualified Data.Array as Array
 import Data.Foldable
-import Foreign.C.Types (CFloat, CInt)
+import Foreign.C.Types (CFloat)
 import Linear
 
 
@@ -64,10 +64,10 @@ rightWallCollision map_m
               checkedTileY = min (Utils.getY checkedTile) (Utils.getY topRight)
               tileIndexY = Utils.worldToMapY map_m checkedTileY
               wallX = Utils.mapToWorldX map_m tileIndexX
-              obstacle = isObstacle map_m $ V2 tileIndexY tileIndexX
+              obstacle = TileMap.isObstacle map_m $ V2 tileIndexY tileIndexX
 
               leftTileIndex = V2 tileIndexY (tileIndexX - 1)
-              obstacleLeft = isObstacle map_m leftTileIndex
+              obstacleLeft = TileMap.isObstacle map_m leftTileIndex
                           || ( isOneWayPlatform map_m leftTileIndex
                             && (Utils.getY (oldCtr - ctr) > 0)
                             && (Utils.getY oldBottomRight > checkedTileY)
@@ -128,10 +128,10 @@ leftWallCollision map_m
                 (Utils.getY topLeft)
               tileIndexY = Utils.worldToMapY map_m checkedTileY
               wallX = Utils.mapToWorldX map_m tileIndexX + 1
-              obstacle = isObstacle map_m $ V2 tileIndexY tileIndexX
+              obstacle = TileMap.isObstacle map_m $ V2 tileIndexY tileIndexX
 
               rightTileIndex = V2 tileIndexY (tileIndexX + 1)
-              obstacleRight = isObstacle map_m rightTileIndex
+              obstacleRight = TileMap.isObstacle map_m rightTileIndex
                            || ( isOneWayPlatform map_m rightTileIndex
                              && (Utils.getY (oldCtr - ctr) > 0)
                              && (Utils.getY oldBottomLeft > checkedTileY)
@@ -193,9 +193,9 @@ ceilingCollision map_m
                 (Utils.getX topRight)
               tileIndexX = Utils.worldToMapX map_m checkedTileX
               ceilingY = Utils.mapToWorldY map_m tileIndexY
-              obstacle = isObstacle map_m $ V2 tileIndexY tileIndexX
+              obstacle = TileMap.isObstacle map_m $ V2 tileIndexY tileIndexX
 
-              obstacleUnder = isObstacle map_m $ V2 (tileIndexY + 1) tileIndexX
+              obstacleUnder = TileMap.isObstacle map_m $ V2 (tileIndexY + 1) tileIndexX
 
 
 
@@ -260,33 +260,14 @@ groundCollision map_m
               tileIndexX = Utils.worldToMapX map_m checkedTileX
               groundY = Utils.mapToWorldY map_m tileIndexY + 1
               tileIndex = V2 tileIndexY tileIndexX
-              obstacle = isObstacle map_m tileIndex
-              obstacleOnTop = isObstacle map_m $ V2 (tileIndexY - 1) tileIndexX
+              obstacle = TileMap.isObstacle map_m tileIndex
+              obstacleOnTop = TileMap.isObstacle map_m $ V2 (tileIndexY - 1) tileIndexX
               
-              onOneWay = isOneWayPlatform map_m tileIndex &&
+              onOneWay = TileMap.isOneWayPlatform map_m tileIndex &&
                 ( abs (Utils.getY checkedTile - groundY) 
                 <= 
                   ( Constants.oneWayPlatformThreshold 
                   + Utils.getY oldPos - Utils.getY pos ) )
-
-
-isOneWayPlatform :: MapTiles -> V2 CInt -> Bool
-isOneWayPlatform map_m coords
-  | Array.inRange (Array.bounds map_m) coords =
-      case map_m Array.! coords of
-        3 -> True
-        _ -> False
-  | otherwise = False
-
-
-isObstacle :: MapTiles -> V2 CInt -> Bool
-isObstacle map_m coords
-  | Array.inRange (Array.bounds map_m) coords =
-      case map_m Array.! coords of
-        1 -> True
-        2 -> True
-        _ -> False
-  | otherwise = True
 
 
 

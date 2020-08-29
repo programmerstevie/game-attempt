@@ -5,19 +5,14 @@ module Main where
 
 import qualified Game
 import ECS.Base (System', Running(..), initWorld)
+import qualified Constants
 
 
 import Apecs (runWith, runSystem, get, global)
 import Control.Monad (when)
-import Data.Word (Word32)
 import SDL (V2(..))
 import qualified SDL
 import qualified SDL.Raw
-
-
-fps, frameDelay :: Word32
-fps = 60
-frameDelay = 1000 `div` fps
 
 
 main :: IO ()
@@ -41,11 +36,11 @@ gameLoop = do
   when running $ do
     frameStart <- SDL.ticks
     Game.handleEvents
-    Game.update
+    Game.update (1 / fromIntegral Constants.fps)
     Game.draw
     dT <- subtract frameStart <$> SDL.ticks
-    when (frameDelay > dT) $
-      SDL.delay (frameDelay - dT)
+    when (Constants.frameDelay > dT) $
+      SDL.delay (Constants.frameDelay - dT)
     gameLoop
 
 -- TRY OUT LTS-16.5 FOR STACK

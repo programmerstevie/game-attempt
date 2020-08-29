@@ -9,7 +9,7 @@ import qualified ECS.Utils
 
 import Apecs.Core (Component, Storage)
 import Apecs.Stores (Map, Global)
-import Control.Monad (forM)
+import Data.Traversable (for)
 import Data.Text (Text, unpack)
 import Data.Aeson
 import Foreign.C.Types (CFloat(..), CInt(..))
@@ -62,7 +62,7 @@ instance FromJSON AnimationMap where
     types      :: [Text] <- v .: "types"
     def        :: String <- v .: "default"
     animations :: Object <- v .: "animations"
-    animMap <- fmap HM.fromList . forM types $ \t -> do
+    animMap <- fmap HM.fromList . for types $ \t -> do
       animation  :: Object   <- animations .: t
       dT         :: CFloat   <- CFloat <$> animation .: "dT"
       file_path  :: FilePath <- animation .: "file_path"
@@ -70,21 +70,21 @@ instance FromJSON AnimationMap where
       src_rects  :: [Maybe (SDL.Rectangle CInt)]
         <- map ECS.Utils.fromCorners <$> animation .: "src_coords"
       let dest_rects = map
-              (ECS.Utils.modRectSize . fmap $ floor . (* scale) . fromIntegral)
+              (ECS.Utils.modRectSize . fmap $ round . (* scale) . fromIntegral)
                src_rects
           name' = name ++ '.' : unpack t
-      return ( name',
-               Animation {
-                 name_A      = name'
-               , filePath_A  = file_path
-               , srcRects_A  = src_rects
-               , destRects_A = dest_rects
-               , length_A    = length src_rects
-               , delta_A     = dT
-               , time0_A     = 0
-               }
-             )
-    return . AnimationMap $ 
+      pure ( name',
+             Animation {
+               name_A      = name'
+             , filePath_A  = file_path
+             , srcRects_A  = src_rects
+             , destRects_A = dest_rects
+             , length_A    = length src_rects
+             , delta_A     = dT
+             , time0_A     = 0
+             }
+           )
+    pure . AnimationMap $ 
       case HM.lookup (name ++ '.' : def) animMap of
         Just anim -> HM.insert (name ++ ".default") anim animMap
         Nothing   -> error "NO DEFAULT ANIMATION"

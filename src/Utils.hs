@@ -34,7 +34,7 @@ consoleShowLog = consoleLog . show
 
 getRectSize :: Maybe (SDL.Rectangle CInt) -> System' (V2 CInt)
 getRectSize Nothing = SDL.get . SDL.windowSize . unWindow =<< get global
-getRectSize (Just (SDL.Rectangle _ size)) = return size
+getRectSize (Just (SDL.Rectangle _ size)) = pure size
 
 
 makeRect :: V2 CInt -> V2 CInt -> SDL.Rectangle CInt
@@ -128,7 +128,7 @@ scaleToWorld :: V2 CInt -> V2 CFloat
 scaleToWorld = fmap $ (/ Cons.coordsScale) . fromIntegral
 
 scaleToSdl :: V2 CFloat -> V2 CInt
-scaleToSdl = fmap $ floor . (* Cons.coordsScale)
+scaleToSdl = fmap $ round . (* Cons.coordsScale)
 
 
 worldToMapCoords :: MapTiles -> V2 CFloat -> V2 CInt
