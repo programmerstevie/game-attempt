@@ -18,7 +18,7 @@ import Linear
 initPlayer :: Position -> System' ()
 initPlayer position = do
   TextureManager.loadAnimationMap
-    "assets\\animations\\Man\\ManAnimations.json"
+    "assets/animations/Man/ManAnimations.json"
   AnimationMap animationMap <- get global
   Time time <- get global
   player <- newEntity
@@ -46,7 +46,7 @@ initDino :: Position -> System' ()
 initDino position = do
   Utils.consoleLog "made a dino!"
   TextureManager.loadAnimationMap 
-    "assets\\animations\\Dino\\DinoAnimations.json"
+    "assets/animations/Dino/DinoAnimations.json"
   AnimationMap animationMap <- get global
   Time time <- get global
   dinosaur <- newEntity

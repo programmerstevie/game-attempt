@@ -1,8 +1,8 @@
 {
   "name": "level_0",
-  "bckgr_path": "assets\\Background2048x1536.png",
+  "bckgr_path": "assets/Background2048x1536.png",
 
-  "tile_path": "assets\\tiles\\level_0\\tiles.png",
+  "tile_path": "assets/tiles/level_0/tiles.png",
   "types": ["AIR", "GRASS", "DIRT", "FALLTHRU"],
   "tiles": {
     "AIR": {

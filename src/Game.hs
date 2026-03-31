@@ -47,7 +47,7 @@ init title pos size fullscr = do
   global $= Camera 0 (V2 25 20)
 
   global $= (Running True, Time 0)
-  TileMap.loadMap "assets\\tiles\\level_0.json"
+  TileMap.loadMap "assets/tiles/level_0.json"
   pure ()
 
 
