@@ -1,5 +1,7 @@
 # miniGame
 
+currently only works for macos because the nix flake only specifies macos.
+
 Requires GHCup (or the matching stack, ghc, and cabal versions.)
 
 You can use nix to start it by running "nix develop" and then "stack build" or "stack run"
